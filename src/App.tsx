@@ -5,17 +5,19 @@ import * as Tone from 'tone'
 import logo from './logo.svg'
 import './App.css'
 
+// Avoid lookAhead delay https://github.com/Tonejs/Tone.js/issues/306
+Tone.context.lookAhead = 0
+
 function App() {
   const [started, setStarted] = useState(false)
-  const synth = useMemo(() => new Tone.Synth().toDestination(), [])
+  const synth = useMemo(() => {
+    const monosynth = new Tone.Synth().toDestination()
+    return monosynth
+  }, [])
 
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
         {!started ? (
           <button onClick={() => setStarted(true)}>Start Synth</button>
         ) : (
