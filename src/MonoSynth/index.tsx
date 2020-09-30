@@ -3,9 +3,7 @@ import { useMemo, useEffect, useCallback } from 'react'
 import * as Tone from 'tone'
 import cs from './styles.module.css'
 
-function useKeyboard(props: { synth: Tone.MonoSynth }): void {
-  const { synth } = props
-
+function useKeyboard(synth: Tone.MonoSynth): void {
   const handleKeyDown = useCallback(
     (evt: KeyboardEvent) => {
       const now = Tone.now()
@@ -14,13 +12,23 @@ function useKeyboard(props: { synth: Tone.MonoSynth }): void {
     [synth]
   )
 
+  const handleKeyUp = useCallback(
+    (evt: KeyboardEvent) => {
+      const now = Tone.now()
+      synth.triggerRelease(now)
+    },
+    [synth]
+  )
+
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown)
+    document.addEventListener('keyup', handleKeyUp)
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
+      document.removeEventListener('keyup', handleKeyUp)
     }
-  }, [])
+  }, [handleKeyDown, handleKeyUp])
 }
 
 export default function MonoSynth() {
@@ -29,7 +37,7 @@ export default function MonoSynth() {
     return monosynth
   }, [])
 
-  useEffect(() => {}, [synth])
+  useKeyboard(synth)
 
   return (
     <div
