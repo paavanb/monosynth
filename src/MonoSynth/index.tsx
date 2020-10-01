@@ -55,7 +55,10 @@ export default function MonoSynth(): JSX.Element {
         Play Note
       </button>
       <VCO oscillator={synth.oscillator} />
-      <LFO autoFilter={autoFilter} />
+      <LFO
+        frequencySignal={autoFilter.frequency}
+        depthParam={autoFilter.depth}
+      />
       <Keyboard synth={synth} />
     </div>
   )

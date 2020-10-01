@@ -28,30 +28,31 @@ const scaleDepth = scaleLinear()
   .clamp(true)
 
 function useFreq(
-  autoFilter: Tone.AutoFilter
+  frequencySignal: Tone.Signal<'frequency'>
 ): [number, React.Dispatch<React.SetStateAction<number>>] {
   const [freq, setFreq] = useState(() =>
-    autoFilter.toFrequency(autoFilter.frequency.value)
+    Tone.Frequency(frequencySignal.value).toFrequency()
   )
 
   useEffect(() => {
     const now = Tone.now()
     // Make sure we don't accidentally schedule frequency changes at the same time
-    autoFilter.frequency.cancelScheduledValues(now)
-    autoFilter.frequency.setValueAtTime(freq, now)
-  }, [freq, autoFilter.frequency])
+    frequencySignal.cancelScheduledValues(now)
+    frequencySignal.setValueAtTime(freq, now)
+  }, [freq, frequencySignal])
 
   return [freq, setFreq]
 }
 
 interface LFOProps {
-  autoFilter: Tone.AutoFilter
+  frequencySignal: Tone.Signal<'frequency'>
+  depthParam: Tone.Param<'normalRange'>
 }
 
 export default function LFO(props: LFOProps): JSX.Element {
-  const { autoFilter } = props
-  const [freq, setFreq] = useFreq(autoFilter)
-  const [depth, setDepth] = useNormalRangeParam(autoFilter.depth)
+  const { frequencySignal, depthParam } = props
+  const [freq, setFreq] = useFreq(frequencySignal)
+  const [depth, setDepth] = useNormalRangeParam(depthParam)
   const [dragging, setDragging] = useState(false)
 
   const markerCoords = {
