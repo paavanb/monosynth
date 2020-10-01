@@ -1,5 +1,5 @@
 import React from 'react'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import * as Tone from 'tone'
 
 import { Dictionary } from '../types'
@@ -19,9 +19,9 @@ const KEYMAP: Dictionary<string, string> = {
   u: 'D#4',
   j: 'E4',
   k: 'F4',
-  i: 'F#4',
+  o: 'F#4',
   l: 'G4',
-  o: 'G#4',
+  p: 'G#4',
 }
 
 interface KeyboardProps {
@@ -30,6 +30,7 @@ interface KeyboardProps {
 
 export default function Keyboard(props: KeyboardProps): JSX.Element {
   const { synth } = props
+  const [activeNote, setActiveNote] = useState<string | null>(null)
 
   const playNote = useCallback(
     (evt: KeyboardEvent) => {
@@ -37,6 +38,7 @@ export default function Keyboard(props: KeyboardProps): JSX.Element {
       if (note !== undefined) {
         const now = Tone.now()
         synth.triggerAttack(note, now)
+        setActiveNote(note)
       }
     },
     [synth]
@@ -46,10 +48,12 @@ export default function Keyboard(props: KeyboardProps): JSX.Element {
     (evt: KeyboardEvent) => {
       const now = Tone.now()
       synth.triggerRelease(now)
+      setActiveNote(null)
     },
     [synth]
   )
 
+  // useKeyboardEffect
   useEffect(() => {
     document.addEventListener('keydown', playNote)
     document.addEventListener('keyup', releaseNote)
@@ -60,5 +64,10 @@ export default function Keyboard(props: KeyboardProps): JSX.Element {
     }
   }, [playNote, releaseNote])
 
-  return (<div>Keyboard!</div>)
+  return (
+    <div>
+      <div>Keyboard!</div>
+      <div>{activeNote}</div>
+    </div>
+  )
 }
