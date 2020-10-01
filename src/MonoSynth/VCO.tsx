@@ -4,11 +4,11 @@ import * as Tone from 'tone'
 
 type OscillatorType = 'sine' | 'square' | 'triangle' | 'sawtooth'
 
-interface LFOProps {
-  oscillator: Tone.OmniOscillator<any>
+interface VCOProps {
+  oscillator: Tone.OmniOscillator<any> // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
-export default function LFO(props: LFOProps): JSX.Element {
+export default function VCO(props: VCOProps): JSX.Element {
   const { oscillator } = props
   const [oscType, setOscType] = useState<OscillatorType>('square')
 

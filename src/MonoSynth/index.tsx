@@ -3,7 +3,7 @@ import { useMemo, useEffect } from 'react'
 import * as Tone from 'tone'
 
 import Keyboard from './Keyboard'
-import LFO from './LFO'
+import VCO from './VCO'
 import cs from './styles.module.css'
 
 // Avoid lookAhead delay https://github.com/Tonejs/Tone.js/issues/306
@@ -29,6 +29,7 @@ export default function MonoSynth(): JSX.Element {
     // Wire up the auto filter
     synth.oscillator.disconnect().connect(autoFilter)
     autoFilter.connect(synth.envelope).start()
+
     return () => {
       // Stop and disconnect from envelope
       autoFilter.stop().disconnect()
@@ -52,7 +53,7 @@ export default function MonoSynth(): JSX.Element {
       >
         Play Note
       </button>
-      <LFO oscillator={synth.oscillator} />
+      <VCO oscillator={synth.oscillator} />
       <Keyboard synth={synth} />
     </div>
   )
