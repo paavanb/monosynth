@@ -4,7 +4,7 @@ import * as Tone from 'tone'
 
 import Keyboard from './Keyboard'
 import VCO from './VCO'
-import LFO from './LFO'
+import LFOPad from './LFOPad'
 import cs from './styles.module.css'
 
 // Avoid lookAhead delay https://github.com/Tonejs/Tone.js/issues/306
@@ -55,7 +55,7 @@ export default function MonoSynth(): JSX.Element {
         Play Note
       </button>
       <VCO oscillator={synth.oscillator} />
-      <LFO
+      <LFOPad
         frequencySignal={autoFilter.frequency}
         depthParam={autoFilter.depth}
       />

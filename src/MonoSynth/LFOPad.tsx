@@ -3,7 +3,6 @@ import { useCallback, useState, useEffect } from 'react'
 import * as Tone from 'tone'
 import { scaleLinear, scalePow } from 'd3'
 
-import clamp from '../utils/clamp'
 import useNormalRangeParam from '../hooks/useNormalRangeParam'
 
 import cs from './styles.module.css'
@@ -49,7 +48,7 @@ interface LFOProps {
   depthParam: Tone.Param<'normalRange'>
 }
 
-export default function LFO(props: LFOProps): JSX.Element {
+export default function LFOPad(props: LFOProps): JSX.Element {
   const { frequencySignal, depthParam } = props
   const [freq, setFreq] = useFreq(frequencySignal)
   const [depth, setDepth] = useNormalRangeParam(depthParam)
