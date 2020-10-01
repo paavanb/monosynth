@@ -1,7 +1,8 @@
+import React from 'react'
 import { useCallback, useEffect } from 'react'
 import * as Tone from 'tone'
 
-import {Dictionary} from '../types'
+import { Dictionary } from '../types'
 
 const KEYMAP: Dictionary<string, string> = {
   q: 'Fb3',
@@ -23,7 +24,13 @@ const KEYMAP: Dictionary<string, string> = {
   o: 'G#4',
 }
 
-export default function useKeyboardEffect(synth: Tone.MonoSynth): void {
+interface KeyboardProps {
+  synth: Tone.MonoSynth
+}
+
+export default function Keyboard(props: KeyboardProps): JSX.Element {
+  const { synth } = props
+
   const playNote = useCallback(
     (evt: KeyboardEvent) => {
       const note = KEYMAP[evt.key]
@@ -52,4 +59,6 @@ export default function useKeyboardEffect(synth: Tone.MonoSynth): void {
       document.removeEventListener('keyup', releaseNote)
     }
   }, [playNote, releaseNote])
+
+  return (<div>Keyboard!</div>)
 }

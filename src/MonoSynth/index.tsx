@@ -1,8 +1,8 @@
 import React from 'react'
-import { useMemo, useEffect, useCallback } from 'react'
+import { useMemo } from 'react'
 import * as Tone from 'tone'
 
-import useKeyboardEffect from './useKeyboardEffect'
+import Keyboard from './Keyboard'
 import cs from './styles.module.css'
 
 // Avoid lookAhead delay https://github.com/Tonejs/Tone.js/issues/306
@@ -13,8 +13,6 @@ export default function MonoSynth(): JSX.Element {
     const monosynth = new Tone.MonoSynth().toDestination()
     return monosynth
   }, [])
-
-  useKeyboardEffect(synth)
 
   return (
     <div
@@ -40,6 +38,7 @@ export default function MonoSynth(): JSX.Element {
       >
         Play Note
       </button>
+      <Keyboard synth={synth} />
     </div>
   )
 }
