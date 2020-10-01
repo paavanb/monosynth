@@ -1,43 +1,20 @@
 import React from 'react'
 import { useMemo, useEffect, useCallback } from 'react'
 import * as Tone from 'tone'
+
+import useKeyboardEffect from './useKeyboardEffect'
 import cs from './styles.module.css'
 
-function useKeyboard(synth: Tone.MonoSynth): void {
-  const handleKeyDown = useCallback(
-    (evt: KeyboardEvent) => {
-      const now = Tone.now()
-      synth.triggerAttack('C4', now)
-    },
-    [synth]
-  )
+// Avoid lookAhead delay https://github.com/Tonejs/Tone.js/issues/306
+Tone.context.lookAhead = 0.01 // Avoid 0 to prevent "start time must be greater than previous start time error"?
 
-  const handleKeyUp = useCallback(
-    (evt: KeyboardEvent) => {
-      const now = Tone.now()
-      synth.triggerRelease(now)
-    },
-    [synth]
-  )
-
-  useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown)
-    document.addEventListener('keyup', handleKeyUp)
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown)
-      document.removeEventListener('keyup', handleKeyUp)
-    }
-  }, [handleKeyDown, handleKeyUp])
-}
-
-export default function MonoSynth() {
+export default function MonoSynth(): JSX.Element {
   const synth = useMemo(() => {
     const monosynth = new Tone.MonoSynth().toDestination()
     return monosynth
   }, [])
 
-  useKeyboard(synth)
+  useKeyboardEffect(synth)
 
   return (
     <div

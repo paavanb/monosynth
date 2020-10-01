@@ -5,9 +5,6 @@ import * as Tone from 'tone'
 import MonoSynth from './MonoSynth'
 import './App.css'
 
-// Avoid lookAhead delay https://github.com/Tonejs/Tone.js/issues/306
-Tone.context.lookAhead = 0
-
 function App() {
   const [started, setStarted] = useState(false)
 
