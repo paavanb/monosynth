@@ -46,10 +46,13 @@ export default function Keyboard(props: KeyboardProps): JSX.Element {
 
   const releaseNote = useCallback(
     (evt: KeyboardEvent) => {
-      synth.triggerRelease()
-      setActiveNote(null)
+      const note = KEYMAP[evt.key]
+      if (note === activeNote) {
+        synth.triggerRelease()
+        setActiveNote(null)
+      }
     },
-    [synth]
+    [synth, activeNote]
   )
 
   // useKeyboardEffect
