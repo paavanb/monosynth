@@ -3,10 +3,11 @@ import { useMemo } from 'react'
 import * as Tone from 'tone'
 
 import Keyboard from './Keyboard'
+import LFO from './LFO'
 import cs from './styles.module.css'
 
 // Avoid lookAhead delay https://github.com/Tonejs/Tone.js/issues/306
-Tone.context.lookAhead = 0.01 // Avoid 0 to prevent "start time must be greater than previous start time error"?
+Tone.context.lookAhead = 0
 
 export default function MonoSynth(): JSX.Element {
   const synth = useMemo(() => {
@@ -15,17 +16,7 @@ export default function MonoSynth(): JSX.Element {
   }, [])
 
   return (
-    <div
-      className={cs.synthContainer}
-      onKeyDown={(evt) => {
-        const now = Tone.now()
-        synth.triggerAttack('C4', now)
-      }}
-      onKeyUp={(evt) => {
-        const now = Tone.now()
-        synth.triggerRelease(now)
-      }}
-    >
+    <div className={cs.synthContainer}>
       <button
         onMouseDown={() => {
           const now = Tone.now()
@@ -38,6 +29,7 @@ export default function MonoSynth(): JSX.Element {
       >
         Play Note
       </button>
+      <LFO synth={synth} />
       <Keyboard synth={synth} />
     </div>
   )

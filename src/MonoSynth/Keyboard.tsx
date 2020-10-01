@@ -4,6 +4,7 @@ import * as Tone from 'tone'
 
 import { Dictionary } from '../types'
 
+// Intuition: Hands should feel comfortable on home row. Spacebar is middle C.
 const KEYMAP: Dictionary<string, string> = {
   q: 'Fb3',
   a: 'F3',
@@ -35,19 +36,17 @@ export default function Keyboard(props: KeyboardProps): JSX.Element {
   const playNote = useCallback(
     (evt: KeyboardEvent) => {
       const note = KEYMAP[evt.key]
-      if (note !== undefined) {
-        const now = Tone.now()
-        synth.triggerAttack(note, now)
+      if (note !== undefined && note !== activeNote) {
+        synth.triggerAttack(note)
         setActiveNote(note)
       }
     },
-    [synth]
+    [synth, activeNote]
   )
 
   const releaseNote = useCallback(
     (evt: KeyboardEvent) => {
-      const now = Tone.now()
-      synth.triggerRelease(now)
+      synth.triggerRelease()
       setActiveNote(null)
     },
     [synth]
