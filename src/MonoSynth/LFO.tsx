@@ -1,6 +1,7 @@
 import React from 'react'
 import { useCallback, useState, useEffect } from 'react'
 import * as Tone from 'tone'
+import { scaleLinear } from 'd3'
 
 import clamp from '../utils/clamp'
 import useNormalRangeParam from '../hooks/useNormalRangeParam'
@@ -10,6 +11,15 @@ const HEIGHT = 150
 
 const FREQ_MAX = 30
 const DEPTH_MAX = 1
+
+const scaleFreq = scaleLinear()
+  .domain([0, WIDTH])
+  .range([0, FREQ_MAX])
+  .clamp(true)
+const scaleDepth = scaleLinear()
+  .domain([0, HEIGHT])
+  .range([0, DEPTH_MAX])
+  .clamp(true)
 
 function useFreq(
   autoFilter: Tone.AutoFilter
@@ -39,14 +49,14 @@ export default function LFO(props: LFOProps): JSX.Element {
   const [dragging, setDragging] = useState(false)
 
   const markerCoords = {
-    x: clamp(freq, 0, WIDTH),
-    y: HEIGHT * depth,
+    x: scaleFreq.invert(freq),
+    y: scaleDepth.invert(depth),
   }
 
   const updateMarkerCoords = useCallback(
     (x: number, y: number) => {
-      setFreq(x)
-      setDepth(y / HEIGHT)
+      setFreq(scaleFreq(x) as number)
+      setDepth(scaleDepth(y) as number)
     },
     [setFreq, setDepth]
   )
