@@ -1,3 +1,8 @@
 .synthContainer {
   flex: 1 1 auto;
 }
+
+rect.lfoPad {
+  fill: gray;
+  rx: 5px;
+}
