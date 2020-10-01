@@ -1,5 +1,5 @@
 import React from 'react'
-import { useMemo } from 'react'
+import { useMemo, useEffect } from 'react'
 import * as Tone from 'tone'
 
 import Keyboard from './Keyboard'
@@ -15,6 +15,29 @@ export default function MonoSynth(): JSX.Element {
     return monosynth
   }, [])
 
+  const autoFilter = useMemo(
+    () =>
+      new Tone.AutoFilter({
+        frequency: 2,
+        depth: 0.6,
+      }),
+    []
+  )
+
+  // manageSynth
+  useEffect(() => {
+    // Wire up the auto filter
+    synth.oscillator.disconnect().connect(autoFilter)
+    autoFilter.connect(synth.envelope).start()
+    return () => {
+      // Stop and disconnect from envelope
+      autoFilter.stop().disconnect()
+
+      // Disconnect from autofilter and reconnect to envelope
+      synth.oscillator.disconnect().connect(synth.envelope)
+    }
+  }, [autoFilter, synth.oscillator, synth.envelope])
+
   return (
     <div className={cs.synthContainer}>
       <button
@@ -29,7 +52,7 @@ export default function MonoSynth(): JSX.Element {
       >
         Play Note
       </button>
-      <LFO synth={synth} />
+      <LFO oscillator={synth.oscillator} />
       <Keyboard synth={synth} />
     </div>
   )

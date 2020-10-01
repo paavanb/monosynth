@@ -5,20 +5,20 @@ import * as Tone from 'tone'
 type OscillatorType = 'sine' | 'square' | 'triangle' | 'sawtooth'
 
 interface LFOProps {
-  synth: Tone.MonoSynth
+  oscillator: Tone.OmniOscillator<any>
 }
 
 export default function LFO(props: LFOProps): JSX.Element {
-  const { synth } = props
+  const { oscillator } = props
   const [oscType, setOscType] = useState<OscillatorType>('square')
 
   const handleTypeChange = useCallback(
     (evt: React.ChangeEvent<HTMLInputElement>) => {
       const oscType = evt.target.value as OscillatorType
       setOscType(oscType)
-      synth.oscillator.type = oscType
+      oscillator.type = oscType
     },
-    [synth.oscillator]
+    [oscillator]
   )
 
   return (
