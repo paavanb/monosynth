@@ -2,6 +2,7 @@ import React from 'react'
 import { useCallback, useState, useEffect } from 'react'
 import * as Tone from 'tone'
 import { scaleLinear, scalePow } from 'd3-scale'
+import { axisBottom } from 'd3-axis'
 
 import useNormalRangeParam from '../hooks/useNormalRangeParam'
 
