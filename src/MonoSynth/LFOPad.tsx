@@ -2,7 +2,9 @@ import React from 'react'
 import { useCallback, useState, useEffect } from 'react'
 import * as Tone from 'tone'
 import { scaleLinear, scalePow } from 'd3-scale'
-import { axisBottom } from 'd3-axis'
+import { range } from 'd3'
+import { AxisBottom } from '@vx/axis'
+import { Group } from '@vx/group'
 
 import useNormalRangeParam from '../hooks/useNormalRangeParam'
 
@@ -11,6 +13,13 @@ import cs from './styles.module.css'
 const WIDTH = 150
 const HEIGHT = 150
 
+enum Margin {
+  Top = 0,
+  Left = 30,
+  Bottom = 60,
+  Right = 10,
+}
+
 const FREQ_MAX = 20
 
 // Important to use a nonlinear scale, since our ears perceive far more difference
@@ -18,10 +27,18 @@ const FREQ_MAX = 20
 //   to get precision at the lower freqs
 const scaleFreq = scalePow()
   .exponent(2)
-  .domain([0, WIDTH])
-  .range([0, FREQ_MAX])
+  .domain([0, FREQ_MAX])
+  .range([0, WIDTH])
   .clamp(true)
-const scaleDepth = scaleLinear().domain([0, HEIGHT]).range([1, 0]).clamp(true)
+const scaleDepth = scaleLinear().domain([1, 0]).range([0, HEIGHT]).clamp(true)
+
+const tickLabelProps = () =>
+  ({
+    textAnchor: 'middle',
+    fontFamily: 'Arial',
+    fontSize: 10,
+    fill: 'white',
+  } as const)
 
 function useFreq(
   frequencySignal: Tone.Signal<'frequency'>
@@ -52,8 +69,8 @@ export default function LFOPad(props: LFOProps): JSX.Element {
   const [dragging, setDragging] = useState(false)
 
   const markerCoords = {
-    x: scaleFreq.invert(freq),
-    y: scaleDepth.invert(depth),
+    x: scaleFreq(freq),
+    y: scaleDepth(depth),
   }
 
   const stopDrag = useCallback(() => {
@@ -61,17 +78,22 @@ export default function LFOPad(props: LFOProps): JSX.Element {
   }, [])
 
   const updateMarkerCoords = useCallback(
-    (x: number, y: number) => {
-      setFreq(scaleFreq(x) as number)
-      setDepth(scaleDepth(y) as number)
+    (evt: React.MouseEvent<SVGRectElement, MouseEvent>) => {
+      const target = evt.target as SVGGElement
+      const boundingRect = target.getBoundingClientRect()
+      const x = evt.clientX - boundingRect.left
+      const y = evt.clientY - boundingRect.top
+
+      setFreq(scaleFreq.invert(x) as number)
+      setDepth(scaleDepth.invert(y) as number)
     },
     [setFreq, setDepth]
   )
 
   const handleMouseDown = useCallback(
-    (evt: React.MouseEvent<SVGGElement, MouseEvent>) => {
+    (evt: React.MouseEvent<SVGRectElement, MouseEvent>) => {
       setDragging(true)
-      updateMarkerCoords(evt.nativeEvent.offsetX, evt.nativeEvent.offsetY)
+      updateMarkerCoords(evt)
       document.addEventListener('mouseup', () => {
         setDragging(false)
         document.removeEventListener('mouseup', stopDrag)
@@ -81,36 +103,51 @@ export default function LFOPad(props: LFOProps): JSX.Element {
   )
 
   const handleMouseMove = useCallback(
-    (evt: React.MouseEvent<SVGGElement, MouseEvent>) => {
+    (evt: React.MouseEvent<SVGRectElement, MouseEvent>) => {
       if (dragging) {
-        updateMarkerCoords(evt.nativeEvent.offsetX, evt.nativeEvent.offsetY)
+        updateMarkerCoords(evt)
       }
     },
     [dragging, updateMarkerCoords]
   )
 
   return (
-    <svg>
-      <g>
-        <g>
-          <rect
-            className={cs.lfoPad}
-            width={WIDTH}
-            height={HEIGHT}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-          />
-          <circle
-            // Avoid accidentally intercepting mouse events
-            style={{ pointerEvents: 'none' }}
-            cx={markerCoords.x}
-            cy={markerCoords.y}
-            r={5}
-            stroke="white"
-            fill="none"
-          />
-        </g>
-      </g>
+    <svg
+      width={WIDTH + Margin.Left + Margin.Right}
+      height={HEIGHT + Margin.Top + Margin.Bottom}
+    >
+      <Group left={Margin.Left} top={Margin.Top}>
+        <rect
+          className={cs.lfoPad}
+          width={WIDTH}
+          height={HEIGHT}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+        />
+        <circle
+          // Avoid accidentally intercepting mouse events
+          style={{ pointerEvents: 'none' }}
+          cx={markerCoords.x}
+          cy={markerCoords.y}
+          r={5}
+          stroke="white"
+          fill="none"
+        />
+        <AxisBottom
+          top={HEIGHT}
+          scale={scaleFreq}
+          numTicks={5}
+          stroke="white"
+          tickStroke="white"
+          tickLabelProps={tickLabelProps}
+          label="Frequency"
+          labelProps={{
+            fill: 'white',
+            fontSize: 10,
+            textAnchor: 'middle',
+          }}
+        />
+      </Group>
     </svg>
   )
 }
