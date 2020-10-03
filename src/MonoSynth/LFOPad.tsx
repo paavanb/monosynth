@@ -1,7 +1,7 @@
 import React from 'react'
 import { useCallback, useState, useEffect } from 'react'
 import * as Tone from 'tone'
-import { scaleLinear, scalePow } from 'd3'
+import { scaleLinear, scalePow } from 'd3-scale'
 
 import useNormalRangeParam from '../hooks/useNormalRangeParam'
 
@@ -10,8 +10,7 @@ import cs from './styles.module.css'
 const WIDTH = 150
 const HEIGHT = 150
 
-const FREQ_MAX = 30
-const DEPTH_MAX = 1
+const FREQ_MAX = 20
 
 // Important to use a nonlinear scale, since our ears perceive far more difference
 //   between 2Hz and 5Hz than 25Hz and 30Hz. With a linear scale, it is hard
@@ -21,10 +20,7 @@ const scaleFreq = scalePow()
   .domain([0, WIDTH])
   .range([0, FREQ_MAX])
   .clamp(true)
-const scaleDepth = scaleLinear()
-  .domain([0, HEIGHT])
-  .range([DEPTH_MAX, 0])
-  .clamp(true)
+const scaleDepth = scaleLinear().domain([0, HEIGHT]).range([1, 0]).clamp(true)
 
 function useFreq(
   frequencySignal: Tone.Signal<'frequency'>
@@ -59,6 +55,10 @@ export default function LFOPad(props: LFOProps): JSX.Element {
     y: scaleDepth.invert(depth),
   }
 
+  const stopDrag = useCallback(() => {
+    setDragging(false)
+  }, [])
+
   const updateMarkerCoords = useCallback(
     (x: number, y: number) => {
       setFreq(scaleFreq(x) as number)
@@ -71,8 +71,12 @@ export default function LFOPad(props: LFOProps): JSX.Element {
     (evt: React.MouseEvent<SVGGElement, MouseEvent>) => {
       setDragging(true)
       updateMarkerCoords(evt.nativeEvent.offsetX, evt.nativeEvent.offsetY)
+      document.addEventListener('mouseup', () => {
+        setDragging(false)
+        document.removeEventListener('mouseup', stopDrag)
+      })
     },
-    [updateMarkerCoords]
+    [updateMarkerCoords, stopDrag]
   )
 
   const handleMouseMove = useCallback(
@@ -86,32 +90,25 @@ export default function LFOPad(props: LFOProps): JSX.Element {
 
   return (
     <svg>
-      <g
-        width={WIDTH}
-        height={HEIGHT}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={() => setDragging(false)}
-        onMouseLeave={() => setDragging(false)}
-      >
-        <rect
-          className={cs.lfoPad}
-          width={WIDTH}
-          height={HEIGHT}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={() => setDragging(false)}
-          onMouseLeave={() => setDragging(false)}
-        />
-        <circle
-          // Avoid accidentally intercepting mouse events
-          style={{ pointerEvents: 'none' }}
-          cx={markerCoords.x}
-          cy={markerCoords.y}
-          r={5}
-          stroke="white"
-          fill="none"
-        />
+      <g>
+        <g>
+          <rect
+            className={cs.lfoPad}
+            width={WIDTH}
+            height={HEIGHT}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+          />
+          <circle
+            // Avoid accidentally intercepting mouse events
+            style={{ pointerEvents: 'none' }}
+            cx={markerCoords.x}
+            cy={markerCoords.y}
+            r={5}
+            stroke="white"
+            fill="none"
+          />
+        </g>
       </g>
     </svg>
   )

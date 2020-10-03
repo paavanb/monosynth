@@ -47,6 +47,7 @@ export default function MonoSynth(): JSX.Element {
         Play Note
       </button>
       <VCO oscillator={synth.oscillator} />
+      {/* TODO Replace props with just LFO? */}
       <LFOPad
         frequencySignal={detuneLFO.frequency}
         depthParam={detuneLFO.amplitude}
