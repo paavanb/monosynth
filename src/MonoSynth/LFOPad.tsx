@@ -1,8 +1,7 @@
 import React from 'react'
 import { useCallback, useState, useEffect } from 'react'
 import * as Tone from 'tone'
-import { scaleLinear, scalePow } from 'd3-scale'
-import { range } from 'd3'
+import { scaleLinear, scaleSymlog } from 'd3-scale'
 import { AxisBottom } from '@vx/axis'
 import { Group } from '@vx/group'
 
@@ -25,8 +24,7 @@ const FREQ_MAX = 20
 // Important to use a nonlinear scale, since our ears perceive far more difference
 //   between 2Hz and 5Hz than 25Hz and 30Hz. With a linear scale, it is hard
 //   to get precision at the lower freqs
-const scaleFreq = scalePow()
-  .exponent(2)
+const scaleFreq = scaleSymlog()
   .domain([0, FREQ_MAX])
   .range([0, WIDTH])
   .clamp(true)
