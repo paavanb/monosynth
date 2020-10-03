@@ -4,25 +4,31 @@ import * as Tone from 'tone'
 
 import { Dictionary } from '../types'
 
-// Intuition: Hands should feel comfortable on home row. Spacebar is middle C.
+// Intuition: Hands should feel comfortable above home row. Spacebar is middle C.
 const KEYMAP: Dictionary<string, string> = {
-  q: 'Fb3',
-  a: 'F3',
-  w: 'Gb3',
-  s: 'G3',
-  e: 'Ab3',
-  d: 'A3',
-  r: 'Bb3',
-  f: 'B3',
+  1: 'Db3',
+  q: 'D3',
+  2: 'Eb3',
+  w: 'E3',
+  e: 'F3',
+  4: 'Gb3',
+  r: 'G3',
+  5: 'Ab3',
+  t: 'A3',
+  6: 'Bb3',
+  y: 'B3',
   ' ': 'C4', // Middle C
-  y: 'C#4',
-  h: 'D4',
-  u: 'D#4',
-  j: 'E4',
-  k: 'F4',
-  o: 'F#4',
-  l: 'G4',
-  p: 'G#4',
+  7: 'C#4',
+  u: 'D4',
+  8: 'D#4',
+  i: 'E4',
+  o: 'F4',
+  0: 'F#4',
+  p: 'G4',
+  '-': 'G#4',
+  '[': 'A4',
+  '=': 'A#4',
+  ']': 'B4',
 }
 
 interface KeyboardProps {
