@@ -16,29 +16,21 @@ export default function MonoSynth(): JSX.Element {
     return monosynth
   }, [])
 
-  const autoFilter = useMemo(
-    () =>
-      new Tone.AutoFilter({
-        frequency: 2,
-        depth: 0.6,
-      }),
+  const detuneLFO = useMemo(
+    () => new Tone.LFO({ amplitude: 0.2, max: 600, min: -600 }),
     []
   )
 
   // manageSynth
   useEffect(() => {
-    // Wire up the auto filter
-    synth.oscillator.disconnect().connect(autoFilter)
-    autoFilter.connect(synth.envelope).start()
+    // Wire up the detune LFO
+    detuneLFO.connect(synth.detune).start()
 
     return () => {
       // Stop and disconnect from envelope
-      autoFilter.stop().disconnect()
-
-      // Disconnect from autofilter and reconnect to envelope
-      synth.oscillator.disconnect().connect(synth.envelope)
+      detuneLFO.stop().disconnect()
     }
-  }, [autoFilter, synth.oscillator, synth.envelope])
+  }, [detuneLFO, synth.detune])
 
   return (
     <div className={cs.synthContainer}>
@@ -56,8 +48,8 @@ export default function MonoSynth(): JSX.Element {
       </button>
       <VCO oscillator={synth.oscillator} />
       <LFOPad
-        frequencySignal={autoFilter.frequency}
-        depthParam={autoFilter.depth}
+        frequencySignal={detuneLFO.frequency}
+        depthParam={detuneLFO.amplitude}
       />
       <Keyboard synth={synth} />
     </div>
