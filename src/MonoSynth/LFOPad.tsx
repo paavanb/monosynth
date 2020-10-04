@@ -1,5 +1,5 @@
 import React from 'react'
-import { useCallback, useState, useEffect } from 'react'
+import { useCallback, useState, useEffect, useRef } from 'react'
 import * as Tone from 'tone'
 import { scaleLinear, scaleSymlog } from 'd3-scale'
 import { AxisBottom, AxisLeft } from '@vx/axis'
@@ -76,9 +76,11 @@ export default function LFOPad(props: LFOProps): JSX.Element {
   const { lfo, leftAxisTickFormat, leftAxisLabel } = props
   const frequencySignal = lfo.frequency
   const depthParam = lfo.amplitude
+
   const [freq, setFreq] = useFreq(frequencySignal)
   const [depth, setDepth] = useNormalRangeParam(depthParam)
   const [dragging, setDragging] = useState(false)
+  const padRef = useRef<SVGRectElement>(null)
 
   const markerCoords = {
     x: scaleFreq(freq),
@@ -90,9 +92,10 @@ export default function LFOPad(props: LFOProps): JSX.Element {
   }, [])
 
   const updateMarkerCoords = useCallback(
-    (evt: React.MouseEvent<SVGRectElement, MouseEvent>) => {
-      const target = evt.target as SVGGElement
-      const boundingRect = target.getBoundingClientRect()
+    (evt: MouseEvent) => {
+      if (!padRef.current) return
+
+      const boundingRect = padRef.current.getBoundingClientRect()
       const x = evt.clientX - boundingRect.left
       const y = evt.clientY - boundingRect.top
 
@@ -102,20 +105,8 @@ export default function LFOPad(props: LFOProps): JSX.Element {
     [setFreq, setDepth]
   )
 
-  const handleMouseDown = useCallback(
-    (evt: React.MouseEvent<SVGRectElement, MouseEvent>) => {
-      setDragging(true)
-      updateMarkerCoords(evt)
-      document.addEventListener('mouseup', () => {
-        setDragging(false)
-        document.removeEventListener('mouseup', stopDrag)
-      })
-    },
-    [updateMarkerCoords, stopDrag]
-  )
-
   const handleMouseMove = useCallback(
-    (evt: React.MouseEvent<SVGRectElement, MouseEvent>) => {
+    (evt: MouseEvent) => {
       if (dragging) {
         updateMarkerCoords(evt)
       }
@@ -123,19 +114,39 @@ export default function LFOPad(props: LFOProps): JSX.Element {
     [dragging, updateMarkerCoords]
   )
 
+  const handleMouseDown = useCallback(
+    (evt: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
+      setDragging(true)
+      updateMarkerCoords(evt.nativeEvent)
+    },
+    [updateMarkerCoords]
+  )
+
+  useEffect(() => {
+    if (dragging) {
+      document.addEventListener('mousemove', handleMouseMove)
+      document.addEventListener('mouseup', stopDrag)
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', stopDrag)
+    }
+  }, [dragging, handleMouseMove, stopDrag])
+
   return (
     <svg
       width={WIDTH + Margin.Left + Margin.Right}
       height={HEIGHT + Margin.Top + Margin.Bottom}
+      onMouseDown={handleMouseDown}
       style={{ userSelect: 'none' }}
     >
       <Group left={Margin.Left} top={Margin.Top}>
         <rect
           className={cs.lfoPad}
+          ref={padRef}
           width={WIDTH}
           height={HEIGHT}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
         />
         <g>
           <AxisBottom
