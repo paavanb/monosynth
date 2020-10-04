@@ -7,6 +7,7 @@ import { Group } from '@vx/group'
 import { GridColumns, GridRows } from '@vx/grid'
 
 import useNormalRangeParam from '../hooks/useNormalRangeParam'
+import useFrequency from '../hooks/useFrequency'
 
 import cs from './styles.module.css'
 
@@ -49,23 +50,6 @@ const leftTickLabelProps = () =>
     dy: '0.25em',
   } as const)
 
-function useFreq(
-  frequencySignal: Tone.Signal<'frequency'>
-): [number, React.Dispatch<React.SetStateAction<number>>] {
-  const [freq, setFreq] = useState(() =>
-    Tone.Frequency(frequencySignal.value).toFrequency()
-  )
-
-  useEffect(() => {
-    const now = Tone.now()
-    // Make sure we don't accidentally schedule frequency changes at the same time
-    frequencySignal.cancelScheduledValues(now)
-    frequencySignal.setValueAtTime(freq, now)
-  }, [freq, frequencySignal])
-
-  return [freq, setFreq]
-}
-
 interface LFOProps {
   lfo: Tone.LFO
   leftAxisTickFormat?: React.ComponentProps<typeof AxisLeft>['tickFormat']
@@ -77,7 +61,7 @@ export default function LFOPad(props: LFOProps): JSX.Element {
   const frequencySignal = lfo.frequency
   const depthParam = lfo.amplitude
 
-  const [freq, setFreq] = useFreq(frequencySignal)
+  const [freq, setFreq] = useFrequency(frequencySignal)
   const [depth, setDepth] = useNormalRangeParam(depthParam)
   const [dragging, setDragging] = useState(false)
   const padRef = useRef<SVGRectElement>(null)

@@ -6,6 +6,7 @@ import { format } from 'd3-format'
 import Keyboard from './Keyboard'
 import VCO from './VCO'
 import LFOPad from './LFOPad'
+import FilterController from './FilterController'
 import cs from './styles.module.css'
 
 // Avoid lookAhead delay https://github.com/Tonejs/Tone.js/issues/306
@@ -50,12 +51,14 @@ export default function MonoSynth(): JSX.Element {
         Play Note
       </button>
       <VCO oscillator={synth.oscillator} />
-      {/* TODO Replace props with just LFO? */}
-      <LFOPad
-        lfo={detuneLFO}
-        leftAxisTickFormat={(d) => semitoneFormat(d.valueOf() * 12)}
-        leftAxisLabel="Pitch"
-      />
+      <div style={{display: 'flex'}}>
+        <LFOPad
+          lfo={detuneLFO}
+          leftAxisTickFormat={(d) => semitoneFormat(d.valueOf() * 12)}
+          leftAxisLabel="Pitch"
+        />
+        <FilterController filter={synth.filter} />
+      </div>
       <Keyboard synth={synth} />
     </div>
   )
