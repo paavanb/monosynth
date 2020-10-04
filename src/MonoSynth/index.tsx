@@ -1,6 +1,7 @@
 import React from 'react'
 import { useMemo, useEffect } from 'react'
 import * as Tone from 'tone'
+import { format } from 'd3-format'
 
 import Keyboard from './Keyboard'
 import VCO from './VCO'
@@ -9,6 +10,8 @@ import cs from './styles.module.css'
 
 // Avoid lookAhead delay https://github.com/Tonejs/Tone.js/issues/306
 Tone.context.lookAhead = 0
+
+const semitoneFormat = format('+')
 
 export default function MonoSynth(): JSX.Element {
   const synth = useMemo(() => {
@@ -49,8 +52,9 @@ export default function MonoSynth(): JSX.Element {
       <VCO oscillator={synth.oscillator} />
       {/* TODO Replace props with just LFO? */}
       <LFOPad
-        frequencySignal={detuneLFO.frequency}
-        depthParam={detuneLFO.amplitude}
+        lfo={detuneLFO}
+        leftAxisTickFormat={(d) => semitoneFormat(d.valueOf() * 12)}
+        leftAxisLabel="Pitch"
       />
       <Keyboard synth={synth} />
     </div>

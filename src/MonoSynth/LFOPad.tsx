@@ -2,8 +2,9 @@ import React from 'react'
 import { useCallback, useState, useEffect } from 'react'
 import * as Tone from 'tone'
 import { scaleLinear, scaleSymlog } from 'd3-scale'
-import { AxisBottom } from '@vx/axis'
+import { AxisBottom, AxisLeft } from '@vx/axis'
 import { Group } from '@vx/group'
+import { GridColumns, GridRows } from '@vx/grid'
 
 import useNormalRangeParam from '../hooks/useNormalRangeParam'
 
@@ -13,8 +14,8 @@ const WIDTH = 150
 const HEIGHT = 150
 
 enum Margin {
-  Top = 0,
-  Left = 30,
+  Top = 10,
+  Left = 60,
   Bottom = 60,
   Right = 10,
 }
@@ -30,12 +31,22 @@ const scaleFreq = scaleSymlog()
   .clamp(true)
 const scaleDepth = scaleLinear().domain([1, 0]).range([0, HEIGHT]).clamp(true)
 
-const tickLabelProps = () =>
+const bottomTickLabelProps = () =>
   ({
     textAnchor: 'middle',
     fontFamily: 'Arial',
     fontSize: 10,
     fill: 'white',
+  } as const)
+
+const leftTickLabelProps = () =>
+  ({
+    fontFamily: 'Arial',
+    fontSize: 10,
+    fill: 'white',
+    textAnchor: 'end',
+    dx: '-0.25em',
+    dy: '0.25em',
   } as const)
 
 function useFreq(
@@ -56,12 +67,15 @@ function useFreq(
 }
 
 interface LFOProps {
-  frequencySignal: Tone.Signal<'frequency'>
-  depthParam: Tone.Param<'normalRange'>
+  lfo: Tone.LFO
+  leftAxisTickFormat?: React.ComponentProps<typeof AxisLeft>['tickFormat']
+  leftAxisLabel?: string
 }
 
 export default function LFOPad(props: LFOProps): JSX.Element {
-  const { frequencySignal, depthParam } = props
+  const { lfo, leftAxisTickFormat, leftAxisLabel } = props
+  const frequencySignal = lfo.frequency
+  const depthParam = lfo.amplitude
   const [freq, setFreq] = useFreq(frequencySignal)
   const [depth, setDepth] = useNormalRangeParam(depthParam)
   const [dragging, setDragging] = useState(false)
@@ -113,6 +127,7 @@ export default function LFOPad(props: LFOProps): JSX.Element {
     <svg
       width={WIDTH + Margin.Left + Margin.Right}
       height={HEIGHT + Margin.Top + Margin.Bottom}
+      style={{ userSelect: 'none' }}
     >
       <Group left={Margin.Left} top={Margin.Top}>
         <rect
@@ -122,28 +137,66 @@ export default function LFOPad(props: LFOProps): JSX.Element {
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
         />
+        <g>
+          <AxisBottom
+            top={HEIGHT}
+            scale={scaleFreq}
+            numTicks={5}
+            tickLength={5}
+            hideAxisLine={true}
+            stroke="white"
+            tickStroke="white"
+            tickLabelProps={bottomTickLabelProps}
+            label="Frequency"
+            labelProps={{
+              fill: 'white',
+              fontSize: 10,
+              textAnchor: 'middle',
+            }}
+          />
+          <GridColumns
+            height={HEIGHT}
+            scale={scaleFreq}
+            stroke="#888"
+            numTicks={5}
+          />
+        </g>
+        <g>
+          <AxisLeft
+            left={0}
+            scale={scaleDepth}
+            tickLength={5}
+            tickValues={[0, 0.25, 0.5, 0.75, 1]}
+            tickFormat={leftAxisTickFormat}
+            hideAxisLine={true}
+            stroke="white"
+            tickStroke="white"
+            tickLabelProps={leftTickLabelProps}
+            label={leftAxisLabel}
+            labelProps={{
+              fill: 'white',
+              fontSize: 10,
+              textAnchor: 'middle',
+            }}
+            labelOffset={25}
+          />
+          <GridRows
+            width={WIDTH}
+            scale={scaleDepth}
+            stroke="#a6a6a6"
+            numTicks={4}
+            tickValues={[0, 0.25, 0.5, 0.75, 1]}
+          />
+        </g>
         <circle
           // Avoid accidentally intercepting mouse events
           style={{ pointerEvents: 'none' }}
           cx={markerCoords.x}
           cy={markerCoords.y}
           r={5}
-          stroke="white"
+          stroke="#920000"
+          strokeWidth={2}
           fill="none"
-        />
-        <AxisBottom
-          top={HEIGHT}
-          scale={scaleFreq}
-          numTicks={5}
-          stroke="white"
-          tickStroke="white"
-          tickLabelProps={tickLabelProps}
-          label="Frequency"
-          labelProps={{
-            fill: 'white',
-            fontSize: 10,
-            textAnchor: 'middle',
-          }}
         />
       </Group>
     </svg>
