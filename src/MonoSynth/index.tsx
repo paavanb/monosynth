@@ -57,7 +57,10 @@ export default function MonoSynth(): JSX.Element {
           leftAxisTickFormat={(d) => semitoneFormat(d.valueOf() * 12)}
           leftAxisLabel="Pitch"
         />
-        <FilterController filterEnvelope={synth.filterEnvelope} />
+        <FilterController
+          filterEnvelope={synth.filterEnvelope}
+          filter={synth.filter}
+        />
       </div>
       <Keyboard synth={synth} />
     </div>
