@@ -21,7 +21,7 @@ export default function MonoSynth(): JSX.Element {
   }, [])
 
   const detuneLFO = useMemo(
-    () => new Tone.LFO({ amplitude: 0.2, max: 600, min: -600 }),
+    () => new Tone.LFO({ amplitude: 0.25, max: 1200, min: -1200 }),
     []
   )
 
