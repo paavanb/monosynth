@@ -51,13 +51,13 @@ export default function MonoSynth(): JSX.Element {
         Play Note
       </button>
       <VCO oscillator={synth.oscillator} />
-      <div style={{display: 'flex'}}>
+      <div style={{ display: 'flex' }}>
         <LFOPad
           lfo={detuneLFO}
           leftAxisTickFormat={(d) => semitoneFormat(d.valueOf() * 12)}
           leftAxisLabel="Pitch"
         />
-        <FilterController filter={synth.filter} />
+        <FilterController filterEnvelope={synth.filterEnvelope} />
       </div>
       <Keyboard synth={synth} />
     </div>

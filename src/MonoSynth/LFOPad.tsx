@@ -1,8 +1,8 @@
 import React from 'react'
 import { useCallback, useState, useEffect, useRef } from 'react'
 import * as Tone from 'tone'
-import { scaleLinear, scaleSymlog } from 'd3-scale'
-import { AxisBottom, AxisLeft } from '@vx/axis'
+import { scaleLinear, scaleSymlog, NumberValue } from 'd3-scale'
+import { AxisBottom, AxisLeft, TickFormatter } from '@vx/axis'
 import { Group } from '@vx/group'
 import { GridColumns, GridRows } from '@vx/grid'
 
@@ -52,7 +52,7 @@ const leftTickLabelProps = () =>
 
 interface LFOProps {
   lfo: Tone.LFO
-  leftAxisTickFormat?: React.ComponentProps<typeof AxisLeft>['tickFormat']
+  leftAxisTickFormat?: TickFormatter<NumberValue>
   leftAxisLabel?: string
 }
 
