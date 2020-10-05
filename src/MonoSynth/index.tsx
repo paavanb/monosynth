@@ -7,6 +7,7 @@ import Keyboard from './Keyboard'
 import VCO from './VCO'
 import LFOPad from './LFOPad'
 import FilterController from './FilterController'
+import EnvelopeController from './EnvelopeController'
 import cs from './styles.module.css'
 
 // Avoid lookAhead delay https://github.com/Tonejs/Tone.js/issues/306
@@ -15,13 +16,10 @@ Tone.context.lookAhead = 0
 const semitoneFormat = format('+')
 
 export default function MonoSynth(): JSX.Element {
-  const synth = useMemo(() => {
-    const monosynth = new Tone.MonoSynth().toDestination()
-    return monosynth
-  }, [])
+  const synth = useMemo(() => new Tone.MonoSynth().toDestination(), [])
 
   const detuneLFO = useMemo(
-    () => new Tone.LFO({ amplitude: 0.25, max: 1200, min: -1200 }),
+    () => new Tone.LFO({ amplitude: 0, max: 1200, min: -1200 }),
     []
   )
 
@@ -61,6 +59,8 @@ export default function MonoSynth(): JSX.Element {
           filterEnvelope={synth.filterEnvelope}
           filter={synth.filter}
         />
+        <EnvelopeController envelope={synth.envelope} />
+        <EnvelopeController envelope={synth.filterEnvelope} />
       </div>
       <Keyboard synth={synth} />
     </div>

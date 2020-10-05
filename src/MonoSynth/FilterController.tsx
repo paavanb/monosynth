@@ -57,18 +57,26 @@ export default function FilterController(
   props: FilterControllerProps
 ): JSX.Element {
   const { filterEnvelope, filter } = props
-  const [freq, setFreq] = useState(
+  const [sliderFreq, setSliderFreq] = useState(
     scaleFilter.invert(
       Tone.Frequency(filterEnvelope.baseFrequency).toFrequency()
     )
   )
+  const [sliderQ, setSliderQ] = useState(1)
   const [filterType, setFilterType] = useState<BiquadFilterType>('lowpass')
 
   // syncEnvelopeFrequency
   useEffect(() => {
-    const val = scaleFilter(Tone.Frequency(freq).toFrequency())
+    const val = scaleFilter(Tone.Frequency(sliderFreq).toFrequency())
     if (val) filterEnvelope.baseFrequency = val
-  }, [freq, filterEnvelope])
+  }, [sliderFreq, filterEnvelope])
+
+  // syncEnvelopeFrequency
+  useEffect(() => {
+    const now = Tone.now()
+    filter.Q.cancelScheduledValues(now)
+    filter.Q.setValueAtTime(sliderQ, now)
+  }, [sliderQ, filter.Q])
 
   // syncFilterType
   useEffect(() => {
@@ -105,13 +113,27 @@ export default function FilterController(
             type="range"
             min="0"
             max="5000"
-            value={freq}
-            onChange={(evt) => setFreq(parseInt(evt.target.value))}
+            value={sliderFreq}
+            onChange={(evt) => setSliderFreq(parseInt(evt.target.value))}
           />
         </label>
         <output>
           {formatFreq(Tone.Frequency(filterEnvelope.baseFrequency))} Hz
         </output>
+      </div>
+      <div>
+        <label style={{ display: 'flex', flexDirection: 'column' }}>
+          Quality
+          <input
+            type="range"
+            min="0.1"
+            max="10"
+            step="0.1"
+            value={sliderQ}
+            onChange={(evt) => setSliderQ(parseFloat(evt.target.value))}
+          />
+        </label>
+        <output>{sliderQ}</output>
       </div>
     </form>
   )
