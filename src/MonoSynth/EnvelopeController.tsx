@@ -5,7 +5,7 @@ import { scalePow } from 'd3-scale'
 import { format } from 'd3-format'
 
 const scaleAttackDecayTime = scalePow().exponent(2).domain([0, 4]).range([0, 4])
-const formatAttackDecayTime = format('.2f')
+const formatTime = format('.2f')
 const formatPercent = format('.0%')
 
 interface EnvelopeControllerProps {
@@ -16,17 +16,25 @@ export default function EnvelopeController(
   props: EnvelopeControllerProps
 ): JSX.Element {
   const { envelope } = props
-  const [sliderAttackDecayTime, setSliderAttackDecayTime] = useState(() =>
-    scaleAttackDecayTime.invert(envelope.attack + envelope.decay)
-  )
-  const attackDecayTime = scaleAttackDecayTime(sliderAttackDecayTime)
+  const [sliderAttackDecayTime, setSliderAttackDecayTime] = useState(() => {
+    const attack = Tone.Time(envelope.attack).toSeconds()
+    const decay = Tone.Time(envelope.decay).toSeconds()
+    return scaleAttackDecayTime.invert(attack + decay)
+  })
+  const attackDecayTime = scaleAttackDecayTime(sliderAttackDecayTime) as number
 
   const [percentAttack, setPercentAttack] = useState(() => {
-    const totalTime = envelope.attack + envelope.decay
-    return envelope.attack / totalTime
+    const attack = Tone.Time(envelope.attack).toSeconds()
+    const decay = Tone.Time(envelope.decay).toSeconds()
+    const totalTime = attack + decay
+    return attack / totalTime
   })
 
   const [sustain, setSustain] = useState(envelope.sustain)
+
+  const [release, setRelease] = useState(() =>
+    Tone.Time(envelope.release).toSeconds()
+  )
 
   // syncAttackDecay
   useEffect(() => {
@@ -39,11 +47,16 @@ export default function EnvelopeController(
     envelope.sustain = sustain
   }, [envelope, sustain])
 
+  // syncRelease
+  useEffect(() => {
+    envelope.release = release
+  }, [envelope, release])
+
   return (
     <div>
       <div>
         <label style={{ display: 'flex', flexDirection: 'column' }}>
-          Attack-Decay Time
+          Onset
           <input
             type="range"
             min={0}
@@ -55,11 +68,11 @@ export default function EnvelopeController(
             }
           />
         </label>
-        {formatAttackDecayTime(attackDecayTime)}s
+        {formatTime(attackDecayTime)}s
       </div>
       <div>
         <label style={{ display: 'flex', flexDirection: 'column' }}>
-          Percent Attack
+          A-D Ratio
           <input
             type="range"
             min={0}
@@ -84,6 +97,20 @@ export default function EnvelopeController(
           />
         </label>
         {formatPercent(sustain)}
+      </div>
+      <div>
+        <label style={{ display: 'flex', flexDirection: 'column' }}>
+          Release
+          <input
+            type="range"
+            min={0}
+            max={4}
+            step="0.1"
+            value={release}
+            onChange={(evt) => setRelease(parseFloat(evt.target.value))}
+          />
+        </label>
+        {formatTime(release)}s
       </div>
     </div>
   )

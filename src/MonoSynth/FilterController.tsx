@@ -90,6 +90,7 @@ export default function FilterController(
           Type:
           <select
             name="filter-type"
+            value={filterType}
             onChange={(evt) =>
               setFilterType(evt.target.value as BiquadFilterType)
             }
@@ -98,7 +99,6 @@ export default function FilterController(
               <option
                 key={option.value}
                 value={option.value}
-                selected={filterType === option.value}
               >
                 {option.name}
               </option>
