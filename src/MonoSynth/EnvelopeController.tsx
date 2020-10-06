@@ -4,6 +4,8 @@ import * as Tone from 'tone'
 import { scalePow } from 'd3-scale'
 import { format } from 'd3-format'
 
+import cs from './styles.module.css'
+
 const scaleAttackDecayTime = scalePow().exponent(2).domain([0, 4]).range([0, 4])
 const formatTime = format('.2f')
 const formatPercent = format('.0%')
@@ -54,8 +56,8 @@ export default function EnvelopeController(
 
   return (
     <div>
-      <div>
-        <label style={{ display: 'flex', flexDirection: 'column' }}>
+      <div className={cs.control}>
+        <label>
           Onset
           <input
             type="range"
@@ -68,10 +70,10 @@ export default function EnvelopeController(
             }
           />
         </label>
-        {formatTime(attackDecayTime)}s
+        <output>{formatTime(attackDecayTime)}s</output>
       </div>
-      <div>
-        <label style={{ display: 'flex', flexDirection: 'column' }}>
+      <div className={cs.control}>
+        <label>
           A-D Ratio
           <input
             type="range"
@@ -82,10 +84,10 @@ export default function EnvelopeController(
             onChange={(evt) => setPercentAttack(parseFloat(evt.target.value))}
           />
         </label>
-        {formatPercent(percentAttack)}
+        <output>{formatPercent(percentAttack)}</output>
       </div>
-      <div>
-        <label style={{ display: 'flex', flexDirection: 'column' }}>
+      <div className={cs.control}>
+        <label>
           Sustain
           <input
             type="range"
@@ -96,10 +98,10 @@ export default function EnvelopeController(
             onChange={(evt) => setSustain(parseFloat(evt.target.value))}
           />
         </label>
-        {formatPercent(sustain)}
+        <output>{formatPercent(sustain)}</output>
       </div>
-      <div>
-        <label style={{ display: 'flex', flexDirection: 'column' }}>
+      <div className={cs.control}>
+        <label>
           Release
           <input
             type="range"
@@ -110,7 +112,7 @@ export default function EnvelopeController(
             onChange={(evt) => setRelease(parseFloat(evt.target.value))}
           />
         </label>
-        {formatTime(release)}s
+        <output>{formatTime(release)}s</output>
       </div>
     </div>
   )

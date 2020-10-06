@@ -36,31 +36,31 @@ export default function MonoSynth(): JSX.Element {
 
   return (
     <div className={cs.synthContainer}>
-      <button
-        onMouseDown={() => {
-          const now = Tone.now()
-          synth.triggerAttack('C4', now)
-        }}
-        onMouseUp={() => {
-          const now = Tone.now()
-          synth.triggerRelease(now)
-        }}
-      >
-        Play Note
-      </button>
       <VCO oscillator={synth.oscillator} />
-      <div style={{ display: 'flex' }}>
-        <LFOPad
-          lfo={detuneLFO}
-          leftAxisTickFormat={(d) => semitoneFormat(d.valueOf() * 12)}
-          leftAxisLabel="Pitch"
-        />
-        <FilterController
-          filterEnvelope={synth.filterEnvelope}
-          filter={synth.filter}
-        />
-        <EnvelopeController envelope={synth.envelope} />
-        <EnvelopeController envelope={synth.filterEnvelope} />
+      <div className={cs.synthControls}>
+        <div>
+          <header>LFO</header>
+          <LFOPad
+            lfo={detuneLFO}
+            leftAxisTickFormat={(d) => semitoneFormat(d.valueOf() * 12)}
+            leftAxisLabel="Pitch"
+          />
+        </div>
+        <div>
+          <header>Filter</header>
+          <FilterController
+            filterEnvelope={synth.filterEnvelope}
+            filter={synth.filter}
+          />
+        </div>
+        <div>
+          <header>Amplitude Envelope</header>
+          <EnvelopeController envelope={synth.envelope} />
+        </div>
+        <div>
+          <header>Filter Envelope</header>
+          <EnvelopeController envelope={synth.filterEnvelope} />
+        </div>
       </div>
       <Keyboard synth={synth} />
     </div>

@@ -4,6 +4,8 @@ import * as Tone from 'tone'
 import { scalePow } from 'd3-scale'
 import { format } from 'd3-format'
 
+import cs from './styles.module.css'
+
 const scaleFilter = scalePow().exponent(2).domain([0, 5000]).range([0, 5000])
 
 const formatFreq = format(',d')
@@ -85,9 +87,9 @@ export default function FilterController(
 
   return (
     <form>
-      <div>
+      <div className={cs.control}>
         <label>
-          Type:
+          Type
           <select
             name="filter-type"
             value={filterType}
@@ -96,18 +98,15 @@ export default function FilterController(
             }
           >
             {FILTER_OPTIONS.map((option) => (
-              <option
-                key={option.value}
-                value={option.value}
-              >
+              <option key={option.value} value={option.value}>
                 {option.name}
               </option>
             ))}
           </select>
         </label>
       </div>
-      <div>
-        <label style={{ display: 'flex', flexDirection: 'column' }}>
+      <div className={cs.control}>
+        <label>
           Frequency
           <input
             type="range"
@@ -121,8 +120,8 @@ export default function FilterController(
           {formatFreq(Tone.Frequency(filterEnvelope.baseFrequency))} Hz
         </output>
       </div>
-      <div>
-        <label style={{ display: 'flex', flexDirection: 'column' }}>
+      <div className={cs.control}>
+        <label>
           Quality
           <input
             type="range"
