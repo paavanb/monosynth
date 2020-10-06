@@ -15,6 +15,23 @@ function noteIsEqual(a: Note | null, b: Note | null) {
   return a[0] === b[0] && a[1] === b[1]
 }
 
+function immutableSetRemove<T>(set: Set<T>, value: T): Set<T> {
+  const values = Array.from(set.values())
+  const index = values.indexOf(value)
+  return new Set([
+    ...values.splice(0, index),
+    ...values.splice(index + 1, values.length),
+  ])
+}
+
+function immutableSetAdd<T>(set: Set<T>, value: T): Set<T> {
+  return new Set([...set, value])
+}
+
+// Known Issue: For some reason, if B and N are pressed, the spacebar does not register.
+const OTTAVA_ALTA_KEYS = new Set(['b', 'n', 'm', ',', '.'])
+const OTTAVA_BASSA_KEYS = new Set(['v', 'c', 'x', 'z'])
+
 // Intuition: Hands should feel comfortable above home row. Spacebar is middle C.
 const KEYMAP: Dictionary<string, Note> = {
   1: ['Db', 3],
@@ -49,55 +66,73 @@ interface KeyboardProps {
 export default function Keyboard(props: KeyboardProps): JSX.Element {
   const { synth } = props
   const [activeNote, setActiveNote] = useState<Note | null>(null)
-  const [octaveOffset, setOctaveOffset] = useState<number>(0)
+  const [activeOttavaAltaKeys, setActiveOttavaAltaKeys] = useState<Set<string>>(
+    new Set([])
+  )
+  const [activeOttavaBassaKeys, setActiveOttavaBassaKeys] = useState<
+    Set<string>
+  >(new Set([]))
 
-  const playNote = useCallback(
+  const handleKeyDown = useCallback(
     (evt: KeyboardEvent) => {
-      const note = KEYMAP[evt.key.toLowerCase()]
+      const note = KEYMAP[evt.key]
       if (note !== undefined && !noteIsEqual(note, activeNote)) {
+        const octaveOffset =
+          activeOttavaAltaKeys.size - activeOttavaBassaKeys.size
         synth.triggerAttack([note[0], note[1] + octaveOffset].join(''))
         setActiveNote(note)
       }
 
-      if (evt.key === 'Shift') {
-        setOctaveOffset((prevOffset) => prevOffset + 1)
+      if (OTTAVA_ALTA_KEYS.has(evt.key) && !activeOttavaAltaKeys.has(evt.key)) {
+        setActiveOttavaAltaKeys((prevKeys) =>
+          immutableSetAdd(prevKeys, evt.key)
+        )
       }
 
-      if (evt.key === 'Control') {
-        setOctaveOffset((prevOffset) => prevOffset - 1)
+      if (
+        OTTAVA_BASSA_KEYS.has(evt.key) &&
+        !activeOttavaBassaKeys.has(evt.key)
+      ) {
+        setActiveOttavaBassaKeys((prevKeys) =>
+          immutableSetAdd(prevKeys, evt.key)
+        )
       }
     },
-    [synth, activeNote, octaveOffset]
+    [synth, activeNote, activeOttavaAltaKeys, activeOttavaBassaKeys]
   )
 
-  const releaseNote = useCallback(
+  const handleKeyUp = useCallback(
     (evt: KeyboardEvent) => {
-      const note = KEYMAP[evt.key.toLowerCase()]
+      const note = KEYMAP[evt.key]
       if (note && noteIsEqual(note, activeNote)) {
         synth.triggerRelease()
         setActiveNote(null)
       }
-      if (evt.key === 'Shift') {
-        setOctaveOffset((prevOffset) => prevOffset - 1)
+      if (activeOttavaAltaKeys.has(evt.key)) {
+        setActiveOttavaAltaKeys((prevKeys) =>
+          immutableSetRemove(prevKeys, evt.key)
+        )
       }
 
-      if (evt.key === 'Control') {
-        setOctaveOffset((prevOffset) => prevOffset + 1)
+      if (activeOttavaBassaKeys.has(evt.key)) {
+        setActiveOttavaBassaKeys((prevKeys) =>
+          immutableSetRemove(prevKeys, evt.key)
+        )
       }
     },
-    [synth, activeNote]
+    [synth, activeNote, activeOttavaAltaKeys, activeOttavaBassaKeys]
   )
 
   // useKeyboardEffect
   useEffect(() => {
-    document.addEventListener('keydown', playNote)
-    document.addEventListener('keyup', releaseNote)
+    document.addEventListener('keydown', handleKeyDown)
+    document.addEventListener('keyup', handleKeyUp)
 
     return () => {
-      document.removeEventListener('keydown', playNote)
-      document.removeEventListener('keyup', releaseNote)
+      document.removeEventListener('keydown', handleKeyDown)
+      document.removeEventListener('keyup', handleKeyUp)
     }
-  }, [playNote, releaseNote])
+  }, [handleKeyDown, handleKeyUp])
 
   return (
     <div>
