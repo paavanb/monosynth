@@ -4,11 +4,15 @@ import * as Tone from 'tone'
 import { scalePow } from 'd3-scale'
 import { format } from 'd3-format'
 
+import ScaledRangeInput from '../ScaledRangeInput'
+
 import cs from './styles.module.css'
 
-const scaleFilter = scalePow().exponent(2).domain([0, 5000]).range([0, 5000])
+const scaleFreq = scalePow([0, 5000], [0, 5000]).exponent(2)
 
 const formatFreq = format(',d')
+
+const formatQuality = format('.2f')
 
 interface FilterOption {
   name: string
@@ -50,6 +54,8 @@ const FILTER_OPTIONS: FilterOption[] = [
   },
 ]
 
+const FILTERS_WITH_GAIN = new Set(['lowshelf', 'highshelf', 'peaking'])
+
 interface FilterControllerProps {
   filterEnvelope: Tone.FrequencyEnvelope
   filter: Tone.Filter
@@ -59,26 +65,32 @@ export default function FilterController(
   props: FilterControllerProps
 ): JSX.Element {
   const { filterEnvelope, filter } = props
-  const [sliderFreq, setSliderFreq] = useState(
-    scaleFilter.invert(
-      Tone.Frequency(filterEnvelope.baseFrequency).toFrequency()
-    )
-  )
-  const [sliderQ, setSliderQ] = useState(1)
   const [filterType, setFilterType] = useState<BiquadFilterType>('lowpass')
+  const [freq, setFreq] = useState(
+    Tone.Frequency(filterEnvelope.baseFrequency).toFrequency()
+  )
+  const [quality, setQuality] = useState(1)
+  const [gain, setGain] = useState(0)
 
-  // syncEnvelopeFrequency
+  // syncFilterFrequency
   useEffect(() => {
-    const val = scaleFilter(Tone.Frequency(sliderFreq).toFrequency())
+    const val = scaleFreq(Tone.Frequency(freq).toFrequency())
     if (val) filterEnvelope.baseFrequency = val
-  }, [sliderFreq, filterEnvelope])
+  }, [freq, filterEnvelope])
 
-  // syncEnvelopeFrequency
+  // syncFilterQuality
   useEffect(() => {
     const now = Tone.now()
     filter.Q.cancelScheduledValues(now)
-    filter.Q.setValueAtTime(sliderQ, now)
-  }, [sliderQ, filter.Q])
+    filter.Q.setValueAtTime(quality, now)
+  }, [quality, filter.Q])
+
+  // syncFilterGain
+  useEffect(() => {
+    const now = Tone.now()
+    filter.gain.cancelScheduledValues(now)
+    filter.gain.setValueAtTime(gain, now)
+  }, [gain, filter])
 
   // syncFilterType
   useEffect(() => {
@@ -108,12 +120,12 @@ export default function FilterController(
       <div className={cs.control}>
         <label>
           Frequency
-          <input
-            type="range"
+          <ScaledRangeInput
+            scale={scaleFreq}
             min="0"
             max="5000"
-            value={sliderFreq}
-            onChange={(evt) => setSliderFreq(parseInt(evt.target.value))}
+            value={freq}
+            onUpdate={setFreq}
           />
         </label>
         <output>
@@ -123,17 +135,34 @@ export default function FilterController(
       <div className={cs.control}>
         <label>
           Quality
-          <input
+          <ScaledRangeInput
             type="range"
-            min="0.1"
-            max="10"
-            step="0.1"
-            value={sliderQ}
-            onChange={(evt) => setSliderQ(parseFloat(evt.target.value))}
+            min="0.01"
+            max="50"
+            step="0.01"
+            scale={scalePow([0.01, 50], [0.01, 50]).exponent(2)}
+            value={quality}
+            onUpdate={setQuality}
           />
         </label>
-        <output>{sliderQ}</output>
+        <output>{formatQuality(quality)}</output>
       </div>
+      {FILTERS_WITH_GAIN.has(filterType) && (
+        <div className={cs.control}>
+          <label>
+            Gain
+            <input
+              type="range"
+              min="-25"
+              max="25"
+              step="0.1"
+              value={gain}
+              onChange={(evt) => setGain(parseFloat(evt.target.value))}
+            />
+          </label>
+          <output>{gain}</output>
+        </div>
+      )}
     </form>
   )
 }

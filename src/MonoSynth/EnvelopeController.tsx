@@ -74,7 +74,7 @@ export default function EnvelopeController(
       </div>
       <div className={cs.control}>
         <label>
-          A-D Ratio
+          A-D Split
           <input
             type="range"
             min={0}
