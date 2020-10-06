@@ -77,9 +77,6 @@ export default function Keyboard(props: KeyboardProps): JSX.Element {
     (evt: KeyboardEvent) => {
       const note = KEYMAP[evt.key]
       if (note !== undefined && !noteIsEqual(note, activeNote)) {
-        const octaveOffset =
-          activeOttavaAltaKeys.size - activeOttavaBassaKeys.size
-        synth.triggerAttack([note[0], note[1] + octaveOffset].join(''))
         setActiveNote(note)
       }
 
@@ -98,7 +95,7 @@ export default function Keyboard(props: KeyboardProps): JSX.Element {
         )
       }
     },
-    [synth, activeNote, activeOttavaAltaKeys, activeOttavaBassaKeys]
+    [activeNote, activeOttavaAltaKeys, activeOttavaBassaKeys]
   )
 
   const handleKeyUp = useCallback(
@@ -122,6 +119,15 @@ export default function Keyboard(props: KeyboardProps): JSX.Element {
     },
     [synth, activeNote, activeOttavaAltaKeys, activeOttavaBassaKeys]
   )
+
+  // triggerAttack
+  useEffect(() => {
+    if (!activeNote) return
+
+    const octaveOffset = activeOttavaAltaKeys.size - activeOttavaBassaKeys.size
+    const playedNote = [activeNote[0], activeNote[1] + octaveOffset]
+    synth.triggerAttack(playedNote.join(''))
+  }, [activeNote, synth, activeOttavaAltaKeys, activeOttavaBassaKeys])
 
   // useKeyboardEffect
   useEffect(() => {
