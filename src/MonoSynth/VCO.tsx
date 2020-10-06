@@ -34,16 +34,6 @@ export default function VCO(props: VCOProps): JSX.Element {
         />
       </label>
       <label>
-        Square
-        <input
-          type="radio"
-          name="osc-type"
-          value="square"
-          checked={oscType === 'square'}
-          onChange={handleTypeChange}
-        />
-      </label>
-      <label>
         Triangle
         <input
           type="radio"
@@ -60,6 +50,16 @@ export default function VCO(props: VCOProps): JSX.Element {
           name="osc-type"
           value="sawtooth"
           checked={oscType === 'sawtooth'}
+          onChange={handleTypeChange}
+        />
+      </label>
+      <label>
+        Square
+        <input
+          type="radio"
+          name="osc-type"
+          value="square"
+          checked={oscType === 'square'}
           onChange={handleTypeChange}
         />
       </label>
