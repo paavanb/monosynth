@@ -45,3 +45,8 @@ rect.lfoPad {
 .synthControls .control select, .synthControls .control input {
   margin-top: 4px;
 }
+
+.envelopeViz rect.window {
+  fill: #cacaca;
+  rx: 2px;
+}

@@ -16,9 +16,9 @@ const HEIGHT = 150
 
 enum Margin {
   Top = 10,
-  Left = 60,
-  Bottom = 60,
   Right = 10,
+  Bottom = 60,
+  Left = 60,
 }
 
 const FREQ_MAX = 20

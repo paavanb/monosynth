@@ -4,9 +4,12 @@ import * as Tone from 'tone'
 import { scalePow } from 'd3-scale'
 import { format } from 'd3-format'
 
+import ScaledRangeInput from '../ScaledRangeInput'
+
+import EnvelopeViz from './EnvelopeViz'
 import cs from './styles.module.css'
 
-const scaleAttackDecayTime = scalePow().exponent(2).domain([0, 4]).range([0, 4])
+const scaleOnsetDuration = scalePow().exponent(2).domain([0, 4]).range([0, 4])
 const formatTime = format('.2f')
 const formatPercent = format('.0%')
 
@@ -18,12 +21,11 @@ export default function EnvelopeController(
   props: EnvelopeControllerProps
 ): JSX.Element {
   const { envelope } = props
-  const [sliderAttackDecayTime, setSliderAttackDecayTime] = useState(() => {
+  const [onsetDuration, setOnsetDuration] = useState(() => {
     const attack = Tone.Time(envelope.attack).toSeconds()
     const decay = Tone.Time(envelope.decay).toSeconds()
-    return scaleAttackDecayTime.invert(attack + decay)
+    return attack + decay
   })
-  const attackDecayTime = scaleAttackDecayTime(sliderAttackDecayTime) as number
 
   const [percentAttack, setPercentAttack] = useState(() => {
     const attack = Tone.Time(envelope.attack).toSeconds()
@@ -40,9 +42,9 @@ export default function EnvelopeController(
 
   // syncAttackDecay
   useEffect(() => {
-    envelope.attack = attackDecayTime * percentAttack
-    envelope.decay = attackDecayTime * (1 - percentAttack)
-  }, [envelope, attackDecayTime, percentAttack])
+    envelope.attack = onsetDuration * percentAttack
+    envelope.decay = onsetDuration * (1 - percentAttack)
+  }, [envelope, onsetDuration, percentAttack])
 
   // syncSustain
   useEffect(() => {
@@ -56,21 +58,25 @@ export default function EnvelopeController(
 
   return (
     <div>
+      <EnvelopeViz
+        onsetDuration={onsetDuration}
+        percentAttack={percentAttack}
+        sustain={sustain}
+        release={release}
+      />
       <div className={cs.control}>
         <label>
           Onset
-          <input
-            type="range"
-            min={0}
-            max={4}
-            step="0.05"
-            value={sliderAttackDecayTime}
-            onChange={(evt) =>
-              setSliderAttackDecayTime(parseFloat(evt.target.value))
-            }
+          <ScaledRangeInput
+            scale={scaleOnsetDuration}
+            min="0"
+            max="4"
+            step="0.01"
+            value={onsetDuration}
+            onUpdate={setOnsetDuration}
           />
         </label>
-        <output>{formatTime(attackDecayTime)}s</output>
+        <output>{formatTime(onsetDuration)}s</output>
       </div>
       <div className={cs.control}>
         <label>
@@ -93,7 +99,7 @@ export default function EnvelopeController(
             type="range"
             min={0}
             max={1}
-            step="0.05"
+            step="0.01"
             value={sustain}
             onChange={(evt) => setSustain(parseFloat(evt.target.value))}
           />

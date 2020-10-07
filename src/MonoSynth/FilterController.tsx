@@ -74,8 +74,7 @@ export default function FilterController(
 
   // syncFilterFrequency
   useEffect(() => {
-    const val = scaleFreq(Tone.Frequency(freq).toFrequency())
-    if (val) filterEnvelope.baseFrequency = val
+    filterEnvelope.baseFrequency = freq
   }, [freq, filterEnvelope])
 
   // syncFilterQuality
@@ -129,7 +128,7 @@ export default function FilterController(
           />
         </label>
         <output>
-          {formatFreq(Tone.Frequency(filterEnvelope.baseFrequency))} Hz
+          {formatFreq(freq)} Hz
         </output>
       </div>
       <div className={cs.control}>

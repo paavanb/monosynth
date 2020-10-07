@@ -19,7 +19,7 @@ export default function ScaledRangeInput(
       value={scale.invert(value)}
       onChange={(evt) => {
         const newValue = scale(parseFloat(evt.target.value))
-        if (newValue) onUpdate(newValue)
+        if (newValue !== undefined) onUpdate(newValue)
       }}
     />
   )
