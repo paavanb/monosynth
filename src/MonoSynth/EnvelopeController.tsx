@@ -11,7 +11,7 @@ import cs from './styles.module.css'
 
 const scaleOnsetDuration = scalePow().exponent(2).domain([0, 4]).range([0, 4])
 const formatTime = format('.2f')
-const formatPercent = format('.0%')
+const formatPercent = format('.1%')
 
 interface EnvelopeControllerProps {
   envelope: Tone.Envelope
@@ -66,7 +66,10 @@ export default function EnvelopeController(
       />
       <div className={cs.control}>
         <label>
-          Onset
+          <span>
+            Onset
+            <output>{formatTime(onsetDuration)}s</output>
+          </span>
           <ScaledRangeInput
             scale={scaleOnsetDuration}
             min="0"
@@ -76,25 +79,29 @@ export default function EnvelopeController(
             onUpdate={setOnsetDuration}
           />
         </label>
-        <output>{formatTime(onsetDuration)}s</output>
       </div>
       <div className={cs.control}>
         <label>
-          A-D Split
+          <span>
+            A-D Split
+            <output>{formatPercent(percentAttack)}</output>
+          </span>
           <input
             type="range"
             min={0}
-            max={1}
-            step="0.01"
+            max={0.999}
+            step="0.001"
             value={percentAttack}
             onChange={(evt) => setPercentAttack(parseFloat(evt.target.value))}
           />
         </label>
-        <output>{formatPercent(percentAttack)}</output>
       </div>
       <div className={cs.control}>
         <label>
-          Sustain
+          <span>
+            Sustain
+            <output>{formatPercent(sustain)}</output>
+          </span>
           <input
             type="range"
             min={0}
@@ -104,21 +111,22 @@ export default function EnvelopeController(
             onChange={(evt) => setSustain(parseFloat(evt.target.value))}
           />
         </label>
-        <output>{formatPercent(sustain)}</output>
       </div>
       <div className={cs.control}>
         <label>
-          Release
+          <span>
+            Release
+            <output>{formatTime(release)}s</output>
+          </span>
           <input
             type="range"
-            min={0}
+            min={0.01}
             max={4}
             step="0.1"
             value={release}
             onChange={(evt) => setRelease(parseFloat(evt.target.value))}
           />
         </label>
-        <output>{formatTime(release)}s</output>
       </div>
     </div>
   )

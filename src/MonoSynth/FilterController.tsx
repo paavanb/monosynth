@@ -97,7 +97,7 @@ export default function FilterController(
   }, [filterType, filter])
 
   return (
-    <form>
+    <form style={{ textAlign: 'center' }}>
       <div className={cs.control}>
         <label>
           Type
@@ -118,7 +118,10 @@ export default function FilterController(
       </div>
       <div className={cs.control}>
         <label>
-          Frequency
+          <span>
+            Frequency
+            <output>{formatFreq(freq)} Hz</output>
+          </span>
           <ScaledRangeInput
             scale={scaleFreq}
             min="0"
@@ -127,13 +130,13 @@ export default function FilterController(
             onUpdate={setFreq}
           />
         </label>
-        <output>
-          {formatFreq(freq)} Hz
-        </output>
       </div>
       <div className={cs.control}>
         <label>
-          Quality
+          <span>
+            Quality
+            <output>{formatQuality(quality)}</output>
+          </span>
           <ScaledRangeInput
             type="range"
             min="0.01"
@@ -144,12 +147,14 @@ export default function FilterController(
             onUpdate={setQuality}
           />
         </label>
-        <output>{formatQuality(quality)}</output>
       </div>
       {FILTERS_WITH_GAIN.has(filterType) && (
         <div className={cs.control}>
           <label>
-            Gain
+            <span>
+              Gain
+              <output>{gain}</output>
+            </span>
             <input
               type="range"
               min="-25"
@@ -159,7 +164,6 @@ export default function FilterController(
               onChange={(evt) => setGain(parseFloat(evt.target.value))}
             />
           </label>
-          <output>{gain}</output>
         </div>
       )}
     </form>

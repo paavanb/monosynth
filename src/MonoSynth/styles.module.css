@@ -3,7 +3,7 @@
 }
 
 rect.lfoPad {
-  fill: #cacaca;
+  fill: #fff;
   rx: 2px;
 }
 
@@ -13,11 +13,11 @@ rect.lfoPad {
 
 .synthControls {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   margin-top: 2rem;
 }
 
-.synthControls * {
+.synthControls > * {
   margin-left: 1rem;
 }
 
@@ -32,8 +32,9 @@ rect.lfoPad {
   margin: 0.5rem 0;
 }
 
-.synthControls .control output {
-  font-size: 0.9em;
+.synthControls .control label > span {
+  display: inline-flex;
+  justify-content: space-between;
 }
 
 .synthControls .control label {
@@ -47,6 +48,11 @@ rect.lfoPad {
 }
 
 .envelopeViz rect.window {
-  fill: #cacaca;
+  fill: #fff;
   rx: 2px;
+}
+
+.envelopeViz path {
+  fill: #0088ff;
+  stroke: none;
 }

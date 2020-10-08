@@ -22,47 +22,55 @@ export default function VCO(props: VCOProps): JSX.Element {
   )
 
   return (
-    <form>
-      <label>
-        Sine
-        <input
-          type="radio"
-          name="osc-type"
-          value="sine"
-          checked={oscType === 'sine'}
-          onChange={handleTypeChange}
-        />
-      </label>
-      <label>
-        Triangle
-        <input
-          type="radio"
-          name="osc-type"
-          value="triangle"
-          checked={oscType === 'triangle'}
-          onChange={handleTypeChange}
-        />
-      </label>
-      <label>
-        Sawtooth
-        <input
-          type="radio"
-          name="osc-type"
-          value="sawtooth"
-          checked={oscType === 'sawtooth'}
-          onChange={handleTypeChange}
-        />
-      </label>
-      <label>
-        Square
-        <input
-          type="radio"
-          name="osc-type"
-          value="square"
-          checked={oscType === 'square'}
-          onChange={handleTypeChange}
-        />
-      </label>
+    <form style={{ textAlign: 'center' }}>
+      <div>
+        <label>
+          Sine
+          <input
+            type="radio"
+            name="osc-type"
+            value="sine"
+            checked={oscType === 'sine'}
+            onChange={handleTypeChange}
+          />
+        </label>
+      </div>
+      <div>
+        <label>
+          Triangle
+          <input
+            type="radio"
+            name="osc-type"
+            value="triangle"
+            checked={oscType === 'triangle'}
+            onChange={handleTypeChange}
+          />
+        </label>
+      </div>
+      <div>
+        <label>
+          Sawtooth
+          <input
+            type="radio"
+            name="osc-type"
+            value="sawtooth"
+            checked={oscType === 'sawtooth'}
+            onChange={handleTypeChange}
+          />
+        </label>
+      </div>
+      <div>
+        <label>
+          Square
+          <input
+            type="radio"
+            name="osc-type"
+            value="square"
+            checked={oscType === 'square'}
+            onChange={handleTypeChange}
+          />
+        </label>
+      </div>
     </form>
   )
 }

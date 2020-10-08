@@ -48,6 +48,13 @@ export default function EnvelopeViz(props: EnvelopeVizProps): JSX.Element {
       ? sustain * INNER_HEIGHT
       : INNER_HEIGHT
 
+  const path = [
+    ['M', 0, 0],
+    ['l', attackWidth, INNER_HEIGHT],
+    ['l', decayWidth, sustainHeight - INNER_HEIGHT],
+    ['h', SUSTAIN_WIDTH],
+    ['l', releaseWidth, -sustainHeight],
+  ]
   return (
     <svg
       width={WIDTH + Margin.Left + Margin.Right}
@@ -63,46 +70,7 @@ export default function EnvelopeViz(props: EnvelopeVizProps): JSX.Element {
             scale(1, -1)
           `}
         >
-          {/* Attack curve */}
-          {onsetDuration !== 0 && percentAttack !== 0 && (
-            <line
-              x1={0}
-              y1={0}
-              x2={attackWidth}
-              y2={INNER_HEIGHT}
-              stroke="black"
-            />
-          )}
-          {/* Decay curve */}
-          {onsetDuration !== 0 && percentAttack !== 1 && (
-            <line
-              x1={attackWidth}
-              y1={INNER_HEIGHT}
-              x2={attackWidth + decayWidth}
-              y2={sustainHeight}
-              stroke="black"
-            />
-          )}
-          {/* Zero-onset curve */}
-          {onsetDuration === 0 && (
-            <line x1={0} y1={0} x2={0} y2={sustainHeight} stroke="black" />
-          )}
-          {/* Sustain level */}
-          <line
-            x1={onsetDurationWidth}
-            y1={sustainHeight}
-            x2={onsetDurationWidth + SUSTAIN_WIDTH}
-            y2={sustainHeight}
-            stroke="black"
-          />
-          {/* Release curve */}
-          <line
-            x1={onsetDurationWidth + SUSTAIN_WIDTH}
-            y1={sustainHeight}
-            x2={onsetDurationWidth + SUSTAIN_WIDTH + releaseWidth}
-            y2={0}
-            stroke="black"
-          />
+          <path d={path.map((a) => a.join(' ')).join(' ')} />
         </Group>
       </Group>
     </svg>

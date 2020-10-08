@@ -36,7 +36,9 @@ export default function MonoSynth(): JSX.Element {
 
   return (
     <div className={cs.synthContainer}>
-      <VCO oscillator={synth.oscillator} />
+      <div className={cs.synthControls}>
+        <VCO oscillator={synth.oscillator} />
+      </div>
       <div className={cs.synthControls}>
         <div>
           <header>LFO</header>
@@ -47,19 +49,19 @@ export default function MonoSynth(): JSX.Element {
           />
         </div>
         <div>
-          <header>Filter</header>
-          <FilterController
-            filterEnvelope={synth.filterEnvelope}
-            filter={synth.filter}
-          />
-        </div>
-        <div>
           <header>Amplitude Envelope</header>
           <EnvelopeController envelope={synth.envelope} />
         </div>
         <div>
           <header>Filter Envelope</header>
           <EnvelopeController envelope={synth.filterEnvelope} />
+          <div>
+            <header>Filter</header>
+            <FilterController
+              filterEnvelope={synth.filterEnvelope}
+              filter={synth.filter}
+            />
+          </div>
         </div>
       </div>
       <Keyboard synth={synth} />
