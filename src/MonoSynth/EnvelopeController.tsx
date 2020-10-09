@@ -83,7 +83,7 @@ export default function EnvelopeController(
       <div className={cs.control}>
         <label>
           <span>
-            A-D Split
+            Attack-Decay Split
             <output>{formatPercent(percentAttack)}</output>
           </span>
           <input

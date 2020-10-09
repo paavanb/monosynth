@@ -1,11 +1,12 @@
 import React from 'react'
-import { useMemo, useEffect } from 'react'
+import { useMemo, useCallback, useEffect } from 'react'
 import * as Tone from 'tone'
 import { format } from 'd3-format'
 
 import Keyboard from './Keyboard'
 import VCO from './VCO'
 import LFOPad from './LFOPad'
+import PitchEnvelope from './PitchEnvelope'
 import FilterController from './FilterController'
 import EnvelopeController from './EnvelopeController'
 import cs from './styles.module.css'
@@ -23,16 +24,38 @@ export default function MonoSynth(): JSX.Element {
     []
   )
 
+  const pitchEnvelope = useMemo(() => {
+    const envelope = new PitchEnvelope()
+    return envelope
+  }, [])
+
+  const triggerAttack = useCallback(
+    (note: string | number | Tone.FrequencyClass<number>) => {
+      synth.triggerAttack(note)
+      pitchEnvelope.triggerAttack()
+    },
+    [synth, pitchEnvelope]
+  )
+
+  const triggerRelease = useCallback(() => {
+    synth.triggerRelease()
+    pitchEnvelope.triggerRelease()
+  }, [synth, pitchEnvelope])
+
   // manageSynth
   useEffect(() => {
     // Wire up the detune LFO
     detuneLFO.connect(synth.detune).start()
 
+    // Wire up the pitch envelope
+    pitchEnvelope.connect(synth.detune)
+
     return () => {
       // Stop and disconnect from envelope
       detuneLFO.stop().disconnect()
+      pitchEnvelope.disconnect()
     }
-  }, [detuneLFO, synth.detune])
+  }, [detuneLFO, pitchEnvelope, synth.detune])
 
   return (
     <div className={cs.synthContainer}>
@@ -53,6 +76,10 @@ export default function MonoSynth(): JSX.Element {
           <EnvelopeController envelope={synth.envelope} />
         </div>
         <div>
+          <header>Pitch Envelope</header>
+          <EnvelopeController envelope={pitchEnvelope} />
+        </div>
+        <div>
           <header>Filter Envelope</header>
           <EnvelopeController envelope={synth.filterEnvelope} />
           <div>
@@ -64,7 +91,7 @@ export default function MonoSynth(): JSX.Element {
           </div>
         </div>
       </div>
-      <Keyboard synth={synth} />
+      <Keyboard triggerAttack={triggerAttack} triggerRelease={triggerRelease} />
     </div>
   )
 }

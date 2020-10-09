@@ -60,11 +60,12 @@ const KEYMAP: Dictionary<string, Note> = {
 }
 
 interface KeyboardProps {
-  synth: Tone.MonoSynth
+  triggerAttack: (note: string | number | Tone.FrequencyClass<number>) => void
+  triggerRelease: () => void
 }
 
 export default function Keyboard(props: KeyboardProps): JSX.Element {
-  const { synth } = props
+  const { triggerAttack, triggerRelease } = props
   const [activeNote, setActiveNote] = useState<Note | null>(null)
   const [activeOttavaAltaKeys, setActiveOttavaAltaKeys] = useState<Set<string>>(
     new Set([])
@@ -102,7 +103,7 @@ export default function Keyboard(props: KeyboardProps): JSX.Element {
     (evt: KeyboardEvent) => {
       const note = KEYMAP[evt.key]
       if (note && noteIsEqual(note, activeNote)) {
-        synth.triggerRelease()
+        triggerRelease()
         setActiveNote(null)
       }
       if (activeOttavaAltaKeys.has(evt.key)) {
@@ -117,7 +118,7 @@ export default function Keyboard(props: KeyboardProps): JSX.Element {
         )
       }
     },
-    [synth, activeNote, activeOttavaAltaKeys, activeOttavaBassaKeys]
+    [triggerRelease, activeNote, activeOttavaAltaKeys, activeOttavaBassaKeys]
   )
 
   // triggerAttack
@@ -126,8 +127,8 @@ export default function Keyboard(props: KeyboardProps): JSX.Element {
 
     const octaveOffset = activeOttavaAltaKeys.size - activeOttavaBassaKeys.size
     const playedNote = [activeNote[0], activeNote[1] + octaveOffset]
-    synth.triggerAttack(playedNote.join(''))
-  }, [activeNote, synth, activeOttavaAltaKeys, activeOttavaBassaKeys])
+    triggerAttack(playedNote.join(''))
+  }, [activeNote, triggerAttack, activeOttavaAltaKeys, activeOttavaBassaKeys])
 
   // useKeyboardEffect
   useEffect(() => {
