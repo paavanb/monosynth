@@ -6,7 +6,7 @@ import { format } from 'd3-format'
 import Keyboard from './Keyboard'
 import VCO from './VCO'
 import LFOPad from './LFOPad'
-import PitchEnvelope from './PitchEnvelope'
+import ScaledEnvelope from './ScaledEnvelope'
 import FilterController from './FilterController'
 import EnvelopeController from './EnvelopeController'
 import cs from './styles.module.css'
@@ -24,10 +24,14 @@ export default function MonoSynth(): JSX.Element {
     []
   )
 
-  const pitchEnvelope = useMemo(() => {
-    const envelope = new PitchEnvelope()
-    return envelope
-  }, [])
+  const pitchEnvelope = useMemo(
+    () =>
+      new ScaledEnvelope({
+        min: -2400,
+        max: 2400,
+      }),
+    []
+  )
 
   const triggerAttack = useCallback(
     (note: string | number | Tone.FrequencyClass<number>) => {
@@ -55,7 +59,7 @@ export default function MonoSynth(): JSX.Element {
       detuneLFO.stop().disconnect()
       pitchEnvelope.disconnect()
     }
-  }, [detuneLFO, pitchEnvelope, synth.detune])
+  }, [detuneLFO, pitchEnvelope, synth.detune, pitchEnvelope.context])
 
   return (
     <div className={cs.synthContainer}>
