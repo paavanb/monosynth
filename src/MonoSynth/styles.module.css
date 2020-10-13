@@ -43,6 +43,14 @@ rect.lfoPad {
   margin-bottom: 4px;
 }
 
+.synthControls .inlineControl label {
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  width: 100%;
+}
+
 .synthControls .control select, .synthControls .control input {
   margin-top: 4px;
 }
