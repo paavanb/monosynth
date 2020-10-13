@@ -9,12 +9,15 @@ import LFOPad from './LFOPad'
 import ScaledEnvelope from './ScaledEnvelope'
 import FilterController from './FilterController'
 import EnvelopeController from './EnvelopeController'
+import ScaledEnvelopeController from './ScaledEnvelopeController'
 import cs from './styles.module.css'
 
 // Avoid lookAhead delay https://github.com/Tonejs/Tone.js/issues/306
 Tone.context.lookAhead = 0
 
-const semitoneFormat = format('+')
+const positiveSemitoneFormat = format('+')
+
+const detuneFormat = format('.1f')
 
 export default function MonoSynth(): JSX.Element {
   const synth = useMemo(() => new Tone.MonoSynth().toDestination(), [])
@@ -27,7 +30,7 @@ export default function MonoSynth(): JSX.Element {
   const pitchEnvelope = useMemo(
     () =>
       new ScaledEnvelope({
-        min: -3600,
+        min: -1200,
         max: 1200,
         fixedSustain: 0,
       }),
@@ -46,6 +49,11 @@ export default function MonoSynth(): JSX.Element {
     synth.triggerRelease()
     pitchEnvelope.triggerRelease()
   }, [synth, pitchEnvelope])
+
+  const formatDetune = useCallback(
+    (detune: number) => `${detuneFormat(detune / 100)} st`,
+    []
+  )
 
   // manageSynth
   useEffect(() => {
@@ -72,7 +80,7 @@ export default function MonoSynth(): JSX.Element {
           <header>LFO</header>
           <LFOPad
             lfo={detuneLFO}
-            leftAxisTickFormat={(d) => semitoneFormat(d.valueOf() * 12)}
+            leftAxisTickFormat={(d) => positiveSemitoneFormat(d.valueOf() * 12)}
             leftAxisLabel="Pitch"
           />
         </div>
@@ -82,7 +90,16 @@ export default function MonoSynth(): JSX.Element {
         </div>
         <div>
           <header>Pitch Envelope</header>
-          <EnvelopeController envelope={pitchEnvelope} />
+          <ScaledEnvelopeController
+            envelope={pitchEnvelope}
+            min={-2400}
+            minLabel="Detune Min"
+            formatMin={formatDetune}
+            max={2400}
+            maxLabel="Detune Max"
+            formatMax={formatDetune}
+            step={10}
+          />
         </div>
         <div>
           <header>Filter Envelope</header>

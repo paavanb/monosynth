@@ -3,9 +3,9 @@ import * as Tone from 'tone'
 interface ScaledEnvelopeOptions {
   min: number
   max: number
-  // If set, updating min/max will also affect sustain value,
+  // Updating min/max will also affect sustain value,
   //   in order to keep the sustained signal equal to `fixedSustain`
-  fixedSustain?: number
+  fixedSustain: number
 }
 
 /**
@@ -16,7 +16,7 @@ export default class ScaledEnvelope extends Tone.Envelope {
 
   private scale: Tone.Scale
 
-  private fixedSustain: number | null
+  public readonly fixedSustain: number
 
   constructor(options: Partial<Tone.EnvelopeOptions> & ScaledEnvelopeOptions) {
     super({
@@ -25,7 +25,7 @@ export default class ScaledEnvelope extends Tone.Envelope {
     })
 
     const { min, max, fixedSustain } = options
-    this.fixedSustain = fixedSustain !== undefined ? fixedSustain : null
+    this.fixedSustain = fixedSustain
     this.scale = this.output = new Tone.Scale({
       context: this.context,
       min,
@@ -37,8 +37,6 @@ export default class ScaledEnvelope extends Tone.Envelope {
   }
 
   private updateSustain() {
-    if (this.fixedSustain === null) return
-
     if (this.fixedSustain < this.min || this.fixedSustain > this.max)
       throw new Error(
         `ValueError: Fixed value '${this.fixedSustain}' is outside of bounds (${this.min}, ${this.max}).`
@@ -63,7 +61,6 @@ export default class ScaledEnvelope extends Tone.Envelope {
 
   get max(): number {
     return this.scale.max
-    this.updateSustain()
   }
 
   set max(val: number) {
@@ -72,6 +69,7 @@ export default class ScaledEnvelope extends Tone.Envelope {
         `Cannot set ScaledEnvelope max value to '${val}', since it is less than the max value '${this.min}'`
       )
     this.scale.max = val
+    this.updateSustain()
   }
 
   public dispose(): this {
