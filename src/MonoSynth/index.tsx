@@ -27,8 +27,9 @@ export default function MonoSynth(): JSX.Element {
   const pitchEnvelope = useMemo(
     () =>
       new ScaledEnvelope({
-        min: -2400,
-        max: 2400,
+        min: -3600,
+        max: 1200,
+        fixedSustain: 0,
       }),
     []
   )

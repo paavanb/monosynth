@@ -3,6 +3,9 @@ import * as Tone from 'tone'
 interface ScaledEnvelopeOptions {
   min: number
   max: number
+  // If set, updating min/max will also affect sustain value,
+  //   in order to keep the sustained signal equal to `fixedSustain`
+  fixedSustain?: number
 }
 
 /**
@@ -13,13 +16,16 @@ export default class ScaledEnvelope extends Tone.Envelope {
 
   private scale: Tone.Scale
 
+  private fixedSustain: number | null
+
   constructor(options: Partial<Tone.EnvelopeOptions> & ScaledEnvelopeOptions) {
     super({
       ...options,
       sustain: 0.5,
     })
 
-    const { min, max } = options
+    const { min, max, fixedSustain } = options
+    this.fixedSustain = fixedSustain !== undefined ? fixedSustain : null
     this.scale = this.output = new Tone.Scale({
       context: this.context,
       min,
@@ -27,6 +33,19 @@ export default class ScaledEnvelope extends Tone.Envelope {
     })
 
     this._sig.connect(this.scale)
+    this.updateSustain()
+  }
+
+  private updateSustain() {
+    if (this.fixedSustain === null) return
+
+    if (this.fixedSustain < this.min || this.fixedSustain > this.max)
+      throw new Error(
+        `ValueError: Fixed value '${this.fixedSustain}' is outside of bounds (${this.min}, ${this.max}).`
+      )
+
+    // Set sustain such that the sustained signal will equal the fixedSustain value
+    this.sustain = (this.fixedSustain - this.min) / (this.max - this.min)
   }
 
   get min(): number {
@@ -34,14 +53,24 @@ export default class ScaledEnvelope extends Tone.Envelope {
   }
 
   set min(val: number) {
+    if (val > this.max)
+      throw new Error(
+        `Cannot set ScaledEnvelope min value to '${val}', since it is greater than the max value '${this.max}'`
+      )
     this.scale.min = val
+    this.updateSustain()
   }
 
   get max(): number {
     return this.scale.max
+    this.updateSustain()
   }
 
   set max(val: number) {
+    if (val < this.min)
+      throw new Error(
+        `Cannot set ScaledEnvelope max value to '${val}', since it is less than the max value '${this.min}'`
+      )
     this.scale.max = val
   }
 
