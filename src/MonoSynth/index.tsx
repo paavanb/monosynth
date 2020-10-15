@@ -4,6 +4,7 @@ import * as Tone from 'tone'
 import { format } from 'd3-format'
 
 import Keyboard from './Keyboard'
+import RibbonKeyboard from './RibbonKeyboard'
 import VCO from './VCO'
 import LFOPad from './LFOPad'
 import ScaledEnvelope from './ScaledEnvelope'
@@ -50,6 +51,13 @@ export default function MonoSynth(): JSX.Element {
     pitchEnvelope.triggerRelease()
   }, [synth, pitchEnvelope])
 
+  const changeFrequency = useCallback(
+    (hz: number) => {
+      synth.oscillator.frequency.setValueAtTime(hz, Tone.now())
+    },
+    [synth.oscillator]
+  )
+
   const formatDetune = useCallback(
     (detune: number) => `${detuneFormat(detune / 100)} st`,
     []
@@ -73,9 +81,10 @@ export default function MonoSynth(): JSX.Element {
   return (
     <div className={cs.synthContainer}>
       <div className={cs.synthControls}>
-        <VCO oscillator={synth.oscillator} />
-      </div>
-      <div className={cs.synthControls}>
+        <div>
+          <header>VCO</header>
+          <VCO oscillator={synth.oscillator} />
+        </div>
         <div>
           <header>LFO</header>
           <LFOPad
@@ -84,6 +93,8 @@ export default function MonoSynth(): JSX.Element {
             leftAxisLabel="Pitch"
           />
         </div>
+      </div>
+      <div className={cs.synthControls}>
         <div>
           <header>Amplitude Envelope</header>
           <EnvelopeController envelope={synth.envelope} />
@@ -113,6 +124,11 @@ export default function MonoSynth(): JSX.Element {
           </div>
         </div>
       </div>
+      <RibbonKeyboard
+        onFrequencyChange={changeFrequency}
+        triggerAttack={triggerAttack}
+        triggerRelease={triggerRelease}
+      />
       <Keyboard triggerAttack={triggerAttack} triggerRelease={triggerRelease} />
     </div>
   )
