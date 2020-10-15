@@ -4,6 +4,8 @@ import * as Tone from 'tone'
 
 import { Dictionary } from '../types'
 
+import cs from './styles.module.css'
+
 // [note, octave] tuples
 type Note = [string, number]
 
@@ -81,6 +83,11 @@ export default function Keyboard(props: KeyboardProps): JSX.Element {
         setActiveNote(note)
       }
 
+      // Prevent the spacebar from scrolling the page
+      if (evt.key === ' ') {
+        evt.preventDefault()
+      }
+
       if (OTTAVA_ALTA_KEYS.has(evt.key) && !activeOttavaAltaKeys.has(evt.key)) {
         setActiveOttavaAltaKeys((prevKeys) =>
           immutableSetAdd(prevKeys, evt.key)
@@ -142,7 +149,7 @@ export default function Keyboard(props: KeyboardProps): JSX.Element {
   }, [handleKeyDown, handleKeyUp])
 
   return (
-    <div>
+    <div className={cs.keyboard}>
       <div>Keyboard!</div>
       <div>{activeNote}</div>
     </div>

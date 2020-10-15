@@ -94,6 +94,11 @@ export default function MonoSynth(): JSX.Element {
           />
         </div>
       </div>
+      <RibbonKeyboard
+        onFrequencyChange={changeFrequency}
+        triggerAttack={triggerAttack}
+        triggerRelease={triggerRelease}
+      />
       <div className={cs.synthControls}>
         <div>
           <header>Amplitude Envelope</header>
@@ -124,11 +129,6 @@ export default function MonoSynth(): JSX.Element {
           </div>
         </div>
       </div>
-      <RibbonKeyboard
-        onFrequencyChange={changeFrequency}
-        triggerAttack={triggerAttack}
-        triggerRelease={triggerRelease}
-      />
       <Keyboard triggerAttack={triggerAttack} triggerRelease={triggerRelease} />
     </div>
   )
