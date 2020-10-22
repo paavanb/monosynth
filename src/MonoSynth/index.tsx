@@ -85,6 +85,13 @@ export default function MonoSynth(): JSX.Element {
           <header>VCO</header>
           <VCO oscillator={synth.oscillator} />
         </div>
+        <div style={{ width: 300 }}>
+          <header>Filter</header>
+          <FilterController
+            filterEnvelope={synth.filterEnvelope}
+            filter={synth.filter}
+          />
+        </div>
         <div>
           <header>LFO</header>
           <LFOPad
@@ -120,13 +127,6 @@ export default function MonoSynth(): JSX.Element {
         <div>
           <header>Filter Envelope</header>
           <EnvelopeController envelope={synth.filterEnvelope} />
-          <div>
-            <header>Filter</header>
-            <FilterController
-              filterEnvelope={synth.filterEnvelope}
-              filter={synth.filter}
-            />
-          </div>
         </div>
       </div>
       <Keyboard triggerAttack={triggerAttack} triggerRelease={triggerRelease} />

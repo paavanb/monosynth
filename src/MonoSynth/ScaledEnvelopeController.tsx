@@ -98,7 +98,7 @@ export default function ScaledEnvelopeController(
           </span>
           <ScaledRangeInput
             scale={scaleOnsetDuration}
-            min="0"
+            min="0.01"
             max="4"
             step="0.01"
             value={onsetDuration}

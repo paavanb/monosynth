@@ -98,7 +98,7 @@ export default function FilterController(
 
   return (
     <form style={{ textAlign: 'center' }}>
-      <div className={cs.control}>
+      <div className={cs.inlineControl}>
         <label>
           Type
           <select
