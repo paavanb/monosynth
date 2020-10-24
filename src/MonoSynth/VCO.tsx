@@ -11,6 +11,7 @@ type OscillatorType = 'sine' | 'square' | 'triangle' | 'sawtooth' | 'pulse'
 
 const dutyCycleFormat = format('.0%')
 const semitoneFormat = (v: number) => `${format('.1f')(v)} st`
+// Map from # semitones offset from the center to the frequency ratio (e.g., 4:3 = perfect fifth up)
 // https://en.wikipedia.org/wiki/Interval_(music)#Size_of_intervals_used_in_different_tuning_systems
 const harmonicityInterpolator = piecewise(interpolateNumber, [
   1 / 2, // Perfect octave down
@@ -41,7 +42,7 @@ const harmonicityInterpolator = piecewise(interpolateNumber, [
 ])
 
 const semitoneScale = scaleLinear([-12, 12], [0, 1])
-const semitoneToHarmonicity = (semitones: number) => harmonicityInterpolator(semitoneScale(semitones))
+const semitoneToHarmonicity = (semitones: number) => harmonicityInterpolator(semitoneScale(semitones) as number)
 
 const OSCILLATOR_OPTIONS = [
   {

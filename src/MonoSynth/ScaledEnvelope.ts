@@ -43,7 +43,10 @@ export default class ScaledEnvelope extends Tone.Envelope {
       )
 
     // Set sustain such that the sustained signal will equal the fixedSustain value
-    this.sustain = (this.fixedSustain - this.min) / (this.max - this.min)
+    const difference = this.max - this.min
+    if (difference !== 0)
+      this.sustain = (this.fixedSustain - this.min) / (this.max - this.min)
+    else this.sustain = this.fixedSustain
   }
 
   get min(): number {
