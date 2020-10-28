@@ -1,5 +1,5 @@
 import React from 'react'
-import { useState, useEffect } from 'react'
+import { useState, useCallback, useEffect} from 'react'
 import * as Tone from 'tone'
 import { scalePow } from 'd3-scale'
 import { format } from 'd3-format'
@@ -7,12 +7,15 @@ import { format } from 'd3-format'
 import ScaledRangeInput from '../ScaledRangeInput'
 
 import ScaledEnvelope from './ScaledEnvelope'
-import ScaledEnvelopeViz from './ScaledEnvelopeViz'
+import EnvelopeViz from './EnvelopeViz'
+import { BasicEnvelopeCurve, EnvelopeCurve } from './types'
+import EnvelopeCurveController from './EnvelopeCurveController'
 import cs from './styles.module.css'
 
 const scaleOnsetDuration = scalePow().exponent(2).domain([0, 4]).range([0, 4])
 const formatTime = format('.2f')
 const formatPercent = format('.1%')
+const VIZ_BOUNDS: [number, number] = [-2400, 2400]
 
 interface ScaledEnvelopeControllerProps {
   envelope: ScaledEnvelope
@@ -58,6 +61,42 @@ export default function ScaledEnvelopeController(
     Tone.Time(envelope.release).toSeconds()
   )
 
+  const [attackCurve, setAttackCurve] = useState<EnvelopeCurve>(
+    envelope.attackCurve as EnvelopeCurve
+  )
+  const [decayCurve, setDecayCurve] = useState<BasicEnvelopeCurve>(
+    envelope.decayCurve
+  )
+  const [releaseCurve, setReleaseCurve] = useState<EnvelopeCurve>(
+    envelope.releaseCurve as EnvelopeCurve
+  )
+
+  const createEnvelope = useCallback(
+    (context: Tone.Context) =>
+      new ScaledEnvelope({
+        context,
+        attack: percentAttack * onsetDuration,
+        decay: (1 - percentAttack) * onsetDuration,
+        release,
+        attackCurve,
+        decayCurve,
+        releaseCurve,
+        min: envelopeMin,
+        max: envelopeMax,
+        fixedSustain: 0,
+      }).toDestination(),
+    [
+      percentAttack,
+      onsetDuration,
+      release,
+      attackCurve,
+      decayCurve,
+      releaseCurve,
+      envelopeMin,
+      envelopeMax,
+    ]
+  )
+
   // syncAttackDecay
   useEffect(() => {
     envelope.attack = onsetDuration * percentAttack
@@ -81,14 +120,10 @@ export default function ScaledEnvelopeController(
 
   return (
     <div>
-      <ScaledEnvelopeViz
+      <EnvelopeViz
         onsetDuration={onsetDuration}
-        percentAttack={percentAttack}
-        min={min}
-        max={max}
-        envelopeMin={envelopeMin}
-        envelopeMax={envelopeMax}
-        release={release}
+        envelope={createEnvelope}
+        bounds={VIZ_BOUNDS}
       />
       <div className={cs.control}>
         <label>
@@ -170,6 +205,14 @@ export default function ScaledEnvelopeController(
           />
         </label>
       </div>
+      <EnvelopeCurveController
+        attackCurve={attackCurve}
+        onAttackCurveChange={setAttackCurve}
+        decayCurve={decayCurve}
+        onDecayCurveChange={setDecayCurve}
+        releaseCurve={releaseCurve}
+        onReleaseCurveChange={setReleaseCurve}
+      />
     </div>
   )
 }

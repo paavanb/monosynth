@@ -1,12 +1,13 @@
 import React from 'react'
-import { useCallback, useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { Group } from '@vx/group'
 import * as Tone from 'tone'
-import { range } from 'd3'
+import { scaleLinear } from 'd3-scale'
 import { debounce } from 'lodash'
 
 import { AsyncValue } from '../types'
 
+import audioBufferSVGPath from './audioBufferSVGPath'
 import { BasicEnvelopeCurve, EnvelopeCurve } from './types'
 import cs from './styles.module.css'
 
@@ -30,6 +31,8 @@ const TOTAL_WIDTH_DURATION = MAX_ONSET_DURATION + SUSTAIN_DURATION + MAX_RELEASE
 const ENVELOPE_SAMPLE_RATE = 3000
 const ENVELOPE_VIZ_NUM_SAMPLES = 500
 
+const DEFAULT_BOUNDS = [0, 1]
+
 enum Margin {
   Top = 0,
   Right = 0,
@@ -39,23 +42,19 @@ enum Margin {
 
 interface EnvelopeVizProps {
   onsetDuration: number
-  percentAttack: number
-  sustain: number
-  release: number
-  attackCurve: EnvelopeCurve
-  decayCurve: BasicEnvelopeCurve
-  releaseCurve: EnvelopeCurve
+  envelope: (ctx: Tone.Context) => Tone.Envelope
+  // The lower and upper bounds of the viz values
+  bounds?: [number, number]
 }
 
+/**
+ * TODO: This component is actually capable of rendering any signal over time, should rename.
+ */
 export default function EnvelopeViz(props: EnvelopeVizProps): JSX.Element {
   const {
     onsetDuration,
-    percentAttack,
-    release,
-    sustain,
-    attackCurve,
-    decayCurve,
-    releaseCurve,
+    envelope,
+    bounds = DEFAULT_BOUNDS, // Preserve ref equality
   } = props
 
   const [asyncEnvelopeBuffer, setAsyncEnvelopeBuffer] = useState<
@@ -66,16 +65,9 @@ export default function EnvelopeViz(props: EnvelopeVizProps): JSX.Element {
     () =>
       debounce(() => {
         Tone.Offline(
-          () => {
-            const env = new Tone.Envelope({
-              attack: percentAttack * onsetDuration,
-              decay: (1 - percentAttack) * onsetDuration,
-              sustain,
-              release,
-              attackCurve,
-              decayCurve,
-              releaseCurve,
-            }).toDestination()
+          (context) => {
+            const env = envelope(context)
+
             env.triggerAttackRelease(onsetDuration + SUSTAIN_DURATION)
           },
           TOTAL_WIDTH_DURATION,
@@ -92,15 +84,7 @@ export default function EnvelopeViz(props: EnvelopeVizProps): JSX.Element {
             })
           })
       }, 100),
-    [
-      onsetDuration,
-      percentAttack,
-      release,
-      sustain,
-      attackCurve,
-      decayCurve,
-      releaseCurve,
-    ]
+    [envelope, onsetDuration]
   )
 
   useEffect(() => {
@@ -109,26 +93,15 @@ export default function EnvelopeViz(props: EnvelopeVizProps): JSX.Element {
 
   const path = useMemo(() => {
     if (asyncEnvelopeBuffer.status !== 'ready') return null
-    const buffer = asyncEnvelopeBuffer.value.get()
 
-    if (!buffer) return null
-
-    const bufferData = buffer.getChannelData(0)
-
-    const length = buffer.length
-    const linePath = new Array(length)
-    // We use forEach since typed arrays (here: Float32Array) don't support mapping to arbitrary types
-    bufferData.forEach((value, idx) => {
-      linePath[idx] = `L ${(idx / length) * INNER_WIDTH} ${
-        value * INNER_HEIGHT
-      }`
-    })
-    // Resample the path so that we only draw a small number of points
-    const sampleIndexes = range(0, length, length / ENVELOPE_VIZ_NUM_SAMPLES)
-    const filteredLinePath = sampleIndexes.map((idx) => linePath[idx])
-
-    return `M 0 0 ${filteredLinePath.join(' ')}`
-  }, [asyncEnvelopeBuffer])
+    return audioBufferSVGPath(
+      asyncEnvelopeBuffer.value,
+      INNER_WIDTH,
+      INNER_HEIGHT,
+      500,
+      scaleLinear([bounds[0], bounds[1]], [0, 1])
+    )
+  }, [asyncEnvelopeBuffer, bounds])
 
   return (
     <svg

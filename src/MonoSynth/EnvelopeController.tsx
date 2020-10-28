@@ -1,34 +1,19 @@
 import React from 'react'
-import { useState, useEffect } from 'react'
+import { useCallback, useState, useEffect } from 'react'
 import * as Tone from 'tone'
 import { scalePow } from 'd3-scale'
 import { format } from 'd3-format'
 
-import { SelectOption } from '../types'
 import ScaledRangeInput from '../ScaledRangeInput'
 
 import EnvelopeViz from './EnvelopeViz'
 import { BasicEnvelopeCurve, EnvelopeCurve } from './types'
 import cs from './styles.module.css'
+import EnvelopeCurveController from './EnvelopeCurveController'
 
 const scaleOnsetDuration = scalePow().exponent(2).domain([0, 4]).range([0, 4])
 const formatTime = format('.2f')
 const formatPercent = format('.1%')
-
-const BASIC_CURVE_OPTIONS: SelectOption<BasicEnvelopeCurve>[] = [
-  { label: 'Linear', value: 'linear' as const },
-  { label: 'Exponential', value: 'exponential' as const },
-]
-
-const ALL_CURVE_OPTIONS: SelectOption<EnvelopeCurve>[] = [
-  { label: 'Linear', value: 'linear' as const },
-  { label: 'Exponential', value: 'exponential' as const },
-  { label: 'Sine', value: 'sine' as const },
-  { label: 'Cosine', value: 'cosine' as const },
-  { label: 'Bounce', value: 'bounce' as const },
-  { label: 'Ripple', value: 'ripple' as const },
-  { label: 'Step', value: 'step' as const },
-]
 
 interface EnvelopeControllerProps {
   envelope: Tone.Envelope
@@ -67,6 +52,29 @@ export default function EnvelopeController(
     envelope.releaseCurve as EnvelopeCurve
   )
 
+  const createEnvelope = useCallback(
+    (context: Tone.Context) =>
+      new Tone.Envelope({
+        context,
+        attack: percentAttack * onsetDuration,
+        decay: (1 - percentAttack) * onsetDuration,
+        sustain,
+        release,
+        attackCurve,
+        decayCurve,
+        releaseCurve,
+      }).toDestination(),
+    [
+      percentAttack,
+      onsetDuration,
+      sustain,
+      release,
+      attackCurve,
+      decayCurve,
+      releaseCurve,
+    ]
+  )
+
   // syncAttackDecay
   useEffect(() => {
     envelope.attack = onsetDuration * percentAttack
@@ -83,24 +91,9 @@ export default function EnvelopeController(
     envelope.release = release
   }, [envelope, release])
 
-  // syncCurves
-  useEffect(() => {
-    envelope.attackCurve = attackCurve
-    envelope.decayCurve = decayCurve
-    envelope.releaseCurve = releaseCurve
-  }, [envelope, attackCurve, decayCurve, releaseCurve])
-
   return (
     <div>
-      <EnvelopeViz
-        onsetDuration={onsetDuration}
-        percentAttack={percentAttack}
-        sustain={sustain}
-        release={release}
-        attackCurve={attackCurve}
-        decayCurve={decayCurve}
-        releaseCurve={releaseCurve}
-      />
+      <EnvelopeViz onsetDuration={onsetDuration} envelope={createEnvelope} />
       <div className={cs.control}>
         <label>
           <span>
@@ -165,60 +158,14 @@ export default function EnvelopeController(
           />
         </label>
       </div>
-      <div className={cs.inlineControl}>
-        <label>
-          Attack Curve
-          <select
-            name="attack-curve"
-            value={attackCurve}
-            onChange={(evt) =>
-              setAttackCurve(evt.target.value as EnvelopeCurve)
-            }
-          >
-            {ALL_CURVE_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
-      <div className={cs.inlineControl}>
-        <label>
-          Decay Curve
-          <select
-            name="decay-curve"
-            value={decayCurve}
-            onChange={(evt) =>
-              setDecayCurve(evt.target.value as BasicEnvelopeCurve)
-            }
-          >
-            {BASIC_CURVE_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
-      <div className={cs.inlineControl}>
-        <label>
-          Release Curve
-          <select
-            name="release-curve"
-            value={releaseCurve}
-            onChange={(evt) =>
-              setReleaseCurve(evt.target.value as EnvelopeCurve)
-            }
-          >
-            {ALL_CURVE_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
+      <EnvelopeCurveController
+        attackCurve={attackCurve}
+        onAttackCurveChange={setAttackCurve}
+        decayCurve={decayCurve}
+        onDecayCurveChange={setDecayCurve}
+        releaseCurve={releaseCurve}
+        onReleaseCurveChange={setReleaseCurve}
+      />
     </div>
   )
 }
