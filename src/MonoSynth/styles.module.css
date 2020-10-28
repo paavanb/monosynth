@@ -67,8 +67,9 @@ rect.lfoPad {
 }
 
 .envelopeViz path {
-  fill: #0088ff;
-  stroke: none;
+  fill: none;
+  stroke: #0088ff;
+  stroke-width: 2px;
 }
 
 .keyboard {

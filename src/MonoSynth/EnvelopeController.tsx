@@ -8,20 +8,12 @@ import { SelectOption } from '../types'
 import ScaledRangeInput from '../ScaledRangeInput'
 
 import EnvelopeViz from './EnvelopeViz'
+import { BasicEnvelopeCurve, EnvelopeCurve } from './types'
 import cs from './styles.module.css'
 
 const scaleOnsetDuration = scalePow().exponent(2).domain([0, 4]).range([0, 4])
 const formatTime = format('.2f')
 const formatPercent = format('.1%')
-
-type BasicEnvelopeCurve = 'linear' | 'exponential'
-type EnvelopeCurve =
-  | BasicEnvelopeCurve
-  | 'sine'
-  | 'cosine'
-  | 'bounce'
-  | 'ripple'
-  | 'step'
 
 const BASIC_CURVE_OPTIONS: SelectOption<BasicEnvelopeCurve>[] = [
   { label: 'Linear', value: 'linear' as const },
@@ -105,6 +97,9 @@ export default function EnvelopeController(
         percentAttack={percentAttack}
         sustain={sustain}
         release={release}
+        attackCurve={attackCurve}
+        decayCurve={decayCurve}
+        releaseCurve={releaseCurve}
       />
       <div className={cs.control}>
         <label>
