@@ -91,6 +91,13 @@ export default function EnvelopeController(
     envelope.release = release
   }, [envelope, release])
 
+  // syncCurves
+  useEffect(() => {
+    envelope.attackCurve = attackCurve
+    envelope.decayCurve = decayCurve
+    envelope.releaseCurve = releaseCurve
+  }, [envelope, attackCurve, decayCurve, releaseCurve])
+
   return (
     <div>
       <EnvelopeViz onsetDuration={onsetDuration} envelope={createEnvelope} />

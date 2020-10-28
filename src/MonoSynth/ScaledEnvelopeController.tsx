@@ -118,6 +118,13 @@ export default function ScaledEnvelopeController(
     envelope.release = release
   }, [envelope, release])
 
+  // syncCurves
+  useEffect(() => {
+    envelope.attackCurve = attackCurve
+    envelope.decayCurve = decayCurve
+    envelope.releaseCurve = releaseCurve
+  }, [envelope, attackCurve, decayCurve, releaseCurve])
+
   return (
     <div>
       <EnvelopeViz
