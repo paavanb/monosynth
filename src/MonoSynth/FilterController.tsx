@@ -131,8 +131,9 @@ export default function FilterController(
           </span>
           <ScaledRangeInput
             scale={scaleFreq}
-            min="0"
-            max="5000"
+            min={0}
+            max={10000}
+            step={0.5}
             value={freq}
             onUpdate={setFreq}
           />
@@ -146,9 +147,9 @@ export default function FilterController(
           </span>
           <ScaledRangeInput
             type="range"
-            min="0.01"
-            max="50"
-            step="0.01"
+            min={0.01}
+            max={50}
+            step={0.01}
             scale={scalePow([0.01, 50], [0.01, 50]).exponent(2)}
             value={quality}
             onUpdate={setQuality}
