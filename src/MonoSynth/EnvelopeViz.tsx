@@ -1,5 +1,5 @@
 import React from 'react'
-import { useEffect, useState, useMemo } from 'react'
+import { useCallback, useEffect, useState, useMemo } from 'react'
 import { Group } from '@vx/group'
 import * as Tone from 'tone'
 import { scaleLinear } from 'd3-scale'
@@ -8,7 +8,6 @@ import { debounce } from 'lodash'
 import { AsyncValue } from '../types'
 
 import audioBufferSVGPath from './audioBufferSVGPath'
-import { BasicEnvelopeCurve, EnvelopeCurve } from './types'
 import cs from './styles.module.css'
 
 const WIDTH = 300
@@ -29,7 +28,6 @@ const TOTAL_WIDTH_DURATION = MAX_ONSET_DURATION + SUSTAIN_DURATION + MAX_RELEASE
 
 // NOTE: 3000 seems to be the minimum for at least Chrome
 const ENVELOPE_SAMPLE_RATE = 3000
-const ENVELOPE_VIZ_NUM_SAMPLES = 500
 
 const DEFAULT_BOUNDS = [0, 1]
 
@@ -61,31 +59,26 @@ export default function EnvelopeViz(props: EnvelopeVizProps): JSX.Element {
     AsyncValue<Tone.ToneAudioBuffer>
   >({ status: 'pending' })
 
-  const updateGraph = useMemo(
-    () =>
-      debounce(() => {
-        Tone.Offline(
-          (context) => {
-            const env = envelope(context)
-
-            env.triggerAttackRelease(onsetDuration + SUSTAIN_DURATION)
-          },
-          TOTAL_WIDTH_DURATION,
-          1,
-          ENVELOPE_SAMPLE_RATE
-        )
-          .then((buffer) => {
-            setAsyncEnvelopeBuffer({ status: 'ready', value: buffer })
-          })
-          .catch(() => {
-            setAsyncEnvelopeBuffer({
-              status: 'error',
-              error: 'Error creating buffer.',
-            })
-          })
-      }, 100),
-    [envelope, onsetDuration]
-  )
+  const updateGraph = useCallback(() => {
+    Tone.Offline(
+      (context) => {
+        const env = envelope(context)
+        env.triggerAttackRelease(onsetDuration + SUSTAIN_DURATION)
+      },
+      TOTAL_WIDTH_DURATION,
+      1,
+      ENVELOPE_SAMPLE_RATE
+    )
+      .then((buffer) => {
+        setAsyncEnvelopeBuffer({ status: 'ready', value: buffer })
+      })
+      .catch(() => {
+        setAsyncEnvelopeBuffer({
+          status: 'error',
+          error: 'Error creating buffer.',
+        })
+      })
+  }, [envelope, onsetDuration])
 
   useEffect(() => {
     updateGraph()
