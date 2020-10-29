@@ -6,10 +6,15 @@ import { format } from 'd3-format'
 
 import ScaledRangeInput from '../ScaledRangeInput'
 
-import EnvelopeViz from './EnvelopeViz'
+import ToneViz from './ToneViz'
 import { BasicEnvelopeCurve, EnvelopeCurve } from './types'
 import cs from './styles.module.css'
 import EnvelopeCurveController from './EnvelopeCurveController'
+
+const MAX_ONSET_DURATION = 4
+const SUSTAIN_DURATION = 0.5
+const MAX_RELEASE = 4
+const TOTAL_WIDTH_DURATION = MAX_ONSET_DURATION + SUSTAIN_DURATION + MAX_RELEASE
 
 const scaleOnsetDuration = scalePow().exponent(2).domain([0, 4]).range([0, 4])
 const formatTime = format('.2f')
@@ -52,9 +57,9 @@ export default function EnvelopeController(
     envelope.releaseCurve as EnvelopeCurve
   )
 
-  const createEnvelope = useCallback(
-    (context: Tone.Context) =>
-      new Tone.Envelope({
+  const recordEnvelope = useCallback(
+    (context: Tone.Context) => {
+      const env = new Tone.Envelope({
         context,
         attack: percentAttack * onsetDuration,
         decay: (1 - percentAttack) * onsetDuration,
@@ -63,7 +68,9 @@ export default function EnvelopeController(
         attackCurve,
         decayCurve,
         releaseCurve,
-      }).toDestination(),
+      }).toDestination()
+      env.triggerAttackRelease(onsetDuration + SUSTAIN_DURATION)
+    },
     [
       percentAttack,
       onsetDuration,
@@ -100,7 +107,10 @@ export default function EnvelopeController(
 
   return (
     <div>
-      <EnvelopeViz onsetDuration={onsetDuration} envelope={createEnvelope} />
+      <ToneViz
+        contextRecorder={recordEnvelope}
+        recordDuration={TOTAL_WIDTH_DURATION}
+      />
       <div className={cs.control}>
         <label>
           <span>
@@ -110,7 +120,7 @@ export default function EnvelopeController(
           <ScaledRangeInput
             scale={scaleOnsetDuration}
             min="0.01"
-            max="4"
+            max={MAX_ONSET_DURATION}
             step="0.01"
             value={onsetDuration}
             onUpdate={setOnsetDuration}
@@ -158,7 +168,7 @@ export default function EnvelopeController(
           <input
             type="range"
             min={0.01}
-            max={4}
+            max={MAX_RELEASE}
             step="0.1"
             value={release}
             onChange={(evt) => setRelease(parseFloat(evt.target.value))}

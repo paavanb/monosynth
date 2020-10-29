@@ -1,5 +1,5 @@
 import React from 'react'
-import { useState, useCallback, useEffect} from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import * as Tone from 'tone'
 import { scalePow } from 'd3-scale'
 import { format } from 'd3-format'
@@ -7,10 +7,15 @@ import { format } from 'd3-format'
 import ScaledRangeInput from '../ScaledRangeInput'
 
 import ScaledEnvelope from './ScaledEnvelope'
-import EnvelopeViz from './EnvelopeViz'
+import ToneViz from './ToneViz'
 import { BasicEnvelopeCurve, EnvelopeCurve } from './types'
 import EnvelopeCurveController from './EnvelopeCurveController'
 import cs from './styles.module.css'
+
+const MAX_ONSET_DURATION = 4
+const SUSTAIN_DURATION = 0.5
+const MAX_RELEASE = 4
+const TOTAL_WIDTH_DURATION = MAX_ONSET_DURATION + SUSTAIN_DURATION + MAX_RELEASE
 
 const scaleOnsetDuration = scalePow().exponent(2).domain([0, 4]).range([0, 4])
 const formatTime = format('.2f')
@@ -71,9 +76,9 @@ export default function ScaledEnvelopeController(
     envelope.releaseCurve as EnvelopeCurve
   )
 
-  const createEnvelope = useCallback(
-    (context: Tone.Context) =>
-      new ScaledEnvelope({
+  const recordEnvelope = useCallback(
+    (context: Tone.Context) => {
+      const env = new ScaledEnvelope({
         context,
         attack: percentAttack * onsetDuration,
         decay: (1 - percentAttack) * onsetDuration,
@@ -84,7 +89,9 @@ export default function ScaledEnvelopeController(
         min: envelopeMin,
         max: envelopeMax,
         fixedSustain: 0,
-      }).toDestination(),
+      }).toDestination()
+      env.triggerAttackRelease(onsetDuration + SUSTAIN_DURATION)
+    },
     [
       percentAttack,
       onsetDuration,
@@ -127,9 +134,9 @@ export default function ScaledEnvelopeController(
 
   return (
     <div>
-      <EnvelopeViz
-        onsetDuration={onsetDuration}
-        envelope={createEnvelope}
+      <ToneViz
+        contextRecorder={recordEnvelope}
+        recordDuration={TOTAL_WIDTH_DURATION}
         bounds={VIZ_BOUNDS}
       />
       <div className={cs.control}>
@@ -141,7 +148,7 @@ export default function ScaledEnvelopeController(
           <ScaledRangeInput
             scale={scaleOnsetDuration}
             min="0.01"
-            max="4"
+            max={MAX_ONSET_DURATION}
             step="0.01"
             value={onsetDuration}
             onUpdate={setOnsetDuration}
@@ -205,7 +212,7 @@ export default function ScaledEnvelopeController(
           <input
             type="range"
             min={0.01}
-            max={4}
+            max={MAX_RELEASE}
             step="0.1"
             value={release}
             onChange={(evt) => setRelease(parseFloat(evt.target.value))}

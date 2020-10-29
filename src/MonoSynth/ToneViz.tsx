@@ -3,7 +3,6 @@ import { useCallback, useEffect, useState, useMemo } from 'react'
 import { Group } from '@vx/group'
 import * as Tone from 'tone'
 import { scaleLinear } from 'd3-scale'
-import { debounce } from 'lodash'
 
 import { AsyncValue } from '../types'
 
@@ -16,18 +15,12 @@ const HEIGHT = 100
 const INNER_WIDTH = 275
 const INNER_HEIGHT = 80
 
+const DEFAULT_SAMPLE_RATE = 48000
+
 enum Padding {
   Left = (WIDTH - INNER_WIDTH) / 2,
   Top = (HEIGHT - INNER_HEIGHT) / 2,
 }
-
-const MAX_ONSET_DURATION = 4
-const MAX_RELEASE = 4
-const SUSTAIN_DURATION = 0.5
-const TOTAL_WIDTH_DURATION = MAX_ONSET_DURATION + SUSTAIN_DURATION + MAX_RELEASE
-
-// NOTE: 3000 seems to be the minimum for at least Chrome
-const ENVELOPE_SAMPLE_RATE = 3000
 
 const DEFAULT_BOUNDS = [0, 1]
 
@@ -38,21 +31,23 @@ enum Margin {
   Left = 0,
 }
 
-interface EnvelopeVizProps {
-  onsetDuration: number
-  envelope: (ctx: Tone.Context) => Tone.Envelope
+interface ToneVizProps {
+  // Amount of time to record for, in seconds
+  recordDuration: number
+  // All events scheduled with the provided context will be recorded
+  // See: Tone.Offline()
+  contextRecorder: (ctx: Tone.Context) => void
   // The lower and upper bounds of the viz values
   bounds?: [number, number]
+  sampleRate?: number
 }
 
-/**
- * TODO: This component is actually capable of rendering any signal over time, should rename.
- */
-export default function EnvelopeViz(props: EnvelopeVizProps): JSX.Element {
+export default function ToneViz(props: ToneVizProps): JSX.Element {
   const {
-    onsetDuration,
-    envelope,
+    contextRecorder,
+    recordDuration,
     bounds = DEFAULT_BOUNDS, // Preserve ref equality
+    sampleRate = DEFAULT_SAMPLE_RATE,
   } = props
 
   const [asyncEnvelopeBuffer, setAsyncEnvelopeBuffer] = useState<
@@ -62,12 +57,11 @@ export default function EnvelopeViz(props: EnvelopeVizProps): JSX.Element {
   const updateGraph = useCallback(() => {
     Tone.Offline(
       (context) => {
-        const env = envelope(context)
-        env.triggerAttackRelease(onsetDuration + SUSTAIN_DURATION)
+        contextRecorder(context)
       },
-      TOTAL_WIDTH_DURATION,
+      recordDuration,
       1,
-      ENVELOPE_SAMPLE_RATE
+      sampleRate,
     )
       .then((buffer) => {
         setAsyncEnvelopeBuffer({ status: 'ready', value: buffer })
@@ -78,7 +72,7 @@ export default function EnvelopeViz(props: EnvelopeVizProps): JSX.Element {
           error: 'Error creating buffer.',
         })
       })
-  }, [envelope, onsetDuration])
+  }, [contextRecorder, recordDuration, sampleRate])
 
   useEffect(() => {
     updateGraph()
@@ -91,10 +85,10 @@ export default function EnvelopeViz(props: EnvelopeVizProps): JSX.Element {
       asyncEnvelopeBuffer.value,
       INNER_WIDTH,
       INNER_HEIGHT,
-      500,
+      Math.max(500, sampleRate * recordDuration),
       scaleLinear([bounds[0], bounds[1]], [0, 1])
     )
-  }, [asyncEnvelopeBuffer, bounds])
+  }, [asyncEnvelopeBuffer, bounds, sampleRate, recordDuration])
 
   return (
     <svg
