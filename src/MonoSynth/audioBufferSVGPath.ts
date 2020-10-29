@@ -21,7 +21,7 @@ export default function audioBufferSVGPath(
 
   const length = buffer.length
   // Resample the path so that we only draw a small number of points
-  const sampleIndexes = range(0, length, length / numSamples)
+  const sampleIndexes = range(0, length, Math.ceil(length / numSamples))
   const linePath = sampleIndexes.map((index) => {
     const value = bufferData[index]
     return `L ${(index / length) * width} ${

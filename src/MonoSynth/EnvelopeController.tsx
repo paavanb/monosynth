@@ -16,6 +16,9 @@ const SUSTAIN_DURATION = 0.5
 const MAX_RELEASE = 4
 const TOTAL_WIDTH_DURATION = MAX_ONSET_DURATION + SUSTAIN_DURATION + MAX_RELEASE
 
+// NOTE: 3000 seems to be the minimum for at least Chrome
+const ENVELOPE_SAMPLE_RATE = 3000
+
 const scaleOnsetDuration = scalePow().exponent(2).domain([0, 4]).range([0, 4])
 const formatTime = format('.2f')
 const formatPercent = format('.1%')
@@ -110,6 +113,7 @@ export default function EnvelopeController(
       <ToneViz
         contextRecorder={recordEnvelope}
         recordDuration={TOTAL_WIDTH_DURATION}
+        sampleRate={ENVELOPE_SAMPLE_RATE}
       />
       <div className={cs.control}>
         <label>
