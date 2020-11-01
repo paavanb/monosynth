@@ -1,5 +1,5 @@
 import React from 'react'
-import { useState, useMemo, useCallback, useEffect } from 'react'
+import { useState, useMemo, useCallback, useLayoutEffect } from 'react'
 import * as Tone from 'tone'
 import { format } from 'd3-format'
 
@@ -12,6 +12,7 @@ import FilterController from './FilterController'
 import EnvelopeController from './EnvelopeController'
 import ScaledEnvelopeController from './ScaledEnvelopeController'
 import ToneViz from './ToneViz'
+import MeterViz from './MeterViz'
 import cs from './styles.module.css'
 
 // Avoid lookAhead delay https://github.com/Tonejs/Tone.js/issues/306
@@ -23,9 +24,10 @@ const detuneFormat = format('.1f')
 
 export default function MonoSynth(): JSX.Element {
   const synth = useMemo(() => new Tone.MonoSynth().toDestination(), [])
-  // Since Tonejs objects are mutable, convert change events to a change
+  // Since Tonejs objects are mutable, change events instead trigger a change
   // in this state variable, which we can then use as dependencies for hooks
   const [oscillatorChangeId, setOscillatorChangeId] = useState(0)
+  const fft = useMemo(() => new Tone.FFT(512), [])
 
   const detuneLFO = useMemo(
     () => new Tone.LFO({ amplitude: 0, max: 1200, min: -1200 }),
@@ -105,22 +107,35 @@ export default function MonoSynth(): JSX.Element {
   }, [])
 
   // manageSynth
-  useEffect(() => {
-    // Wire up the detune LFO
+  // Wire up the detune LFO
+  useLayoutEffect(() => {
     detuneLFO.connect(synth.detune).start()
-
-    // Wire up the pitch envelope
-    pitchEnvelope.connect(synth.detune)
-
     return () => {
-      // Stop and disconnect from envelope
       detuneLFO.stop().disconnect()
+    }
+  }, [detuneLFO, synth.detune])
+
+  // Wire up the pitch envelope
+  useLayoutEffect(() => {
+    pitchEnvelope.connect(synth.detune)
+    return () => {
       pitchEnvelope.disconnect()
     }
-  }, [detuneLFO, pitchEnvelope, synth.detune, pitchEnvelope.context])
+  }, [pitchEnvelope, synth.detune])
+
+  useLayoutEffect(() => {
+    // Pass the synth through the FFT so we can record the frequency distribution
+    synth.chain(fft, Tone.Destination)
+    return () => {
+      synth.toDestination()
+    }
+  }, [synth, fft])
 
   return (
     <div className={cs.synthContainer}>
+      <div className={cs.synthControls}>
+        <MeterViz meter={fft} />
+      </div>
       <div className={cs.synthControls}>
         <ToneViz
           contextRecorder={recordOscillator}

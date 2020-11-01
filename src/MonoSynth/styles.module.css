@@ -61,12 +61,12 @@ rect.lfoPad {
   margin-top: 4px;
 }
 
-.envelopeViz rect.window {
+.toneViz rect.window {
   fill: #fff;
   rx: 2px;
 }
 
-.envelopeViz path {
+.toneViz path {
   fill: none;
   stroke: #0088ff;
   stroke-width: 2px;
