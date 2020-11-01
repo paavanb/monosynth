@@ -12,7 +12,7 @@ import FilterController from './FilterController'
 import EnvelopeController from './EnvelopeController'
 import ScaledEnvelopeController from './ScaledEnvelopeController'
 import ToneViz from './ToneViz'
-import MeterViz from './MeterViz'
+import FFTViz from './FFTViz'
 import cs from './styles.module.css'
 
 // Avoid lookAhead delay https://github.com/Tonejs/Tone.js/issues/306
@@ -27,7 +27,7 @@ export default function MonoSynth(): JSX.Element {
   // Since Tonejs objects are mutable, change events instead trigger a change
   // in this state variable, which we can then use as dependencies for hooks
   const [oscillatorChangeId, setOscillatorChangeId] = useState(0)
-  const fft = useMemo(() => new Tone.FFT(512), [])
+  const fft = useMemo(() => new Tone.FFT(1024), [])
 
   const detuneLFO = useMemo(
     () => new Tone.LFO({ amplitude: 0, max: 1200, min: -1200 }),
@@ -134,7 +134,7 @@ export default function MonoSynth(): JSX.Element {
   return (
     <div className={cs.synthContainer}>
       <div className={cs.synthControls}>
-        <MeterViz meter={fft} />
+        <FFTViz meter={fft} />
       </div>
       <div className={cs.synthControls}>
         <ToneViz
