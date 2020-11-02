@@ -13,6 +13,7 @@ import EnvelopeController from './EnvelopeController'
 import ScaledEnvelopeController from './ScaledEnvelopeController'
 import ToneViz from './ToneViz'
 import FFTViz from './FFTViz'
+import WaveformViz from './WaveformViz'
 import cs from './styles.module.css'
 
 // Avoid lookAhead delay https://github.com/Tonejs/Tone.js/issues/306
@@ -28,6 +29,7 @@ export default function MonoSynth(): JSX.Element {
   // in this state variable, which we can then use as dependencies for hooks
   const [oscillatorChangeId, setOscillatorChangeId] = useState(0)
   const fft = useMemo(() => new Tone.FFT(1024), [])
+  const waveform = useMemo(() => new Tone.Waveform(1024), [])
 
   const detuneLFO = useMemo(
     () => new Tone.LFO({ amplitude: 0, max: 1200, min: -1200 }),
@@ -125,16 +127,19 @@ export default function MonoSynth(): JSX.Element {
 
   useLayoutEffect(() => {
     // Pass the synth through the FFT so we can record the frequency distribution
-    synth.chain(fft, Tone.Destination)
+    synth.chain(fft, waveform, Tone.Destination)
     return () => {
       synth.toDestination()
+      fft.disconnect()
+      waveform.disconnect()
     }
-  }, [synth, fft])
+  }, [synth, fft, waveform])
 
   return (
     <div className={cs.synthContainer}>
       <div className={cs.synthControls}>
         <FFTViz meter={fft} />
+        <WaveformViz meter={waveform} />
       </div>
       <div className={cs.synthControls}>
         <ToneViz

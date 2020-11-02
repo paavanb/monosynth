@@ -34,7 +34,7 @@ const MAX_FREQ = 20_000
 const scaleFreq = scaleSymlog([0, MAX_FREQ], [0, INNER_WIDTH]).constant(100)
 const formatFreq = format('.2s')
 
-const scaleDecibels = scaleLinear([-60, 0], [0, INNER_HEIGHT])
+const scaleDecibels = scaleLinear([-100, 0], [0, INNER_HEIGHT])
 const axisScaleDecibels = scaleLinear(
   [scaleDecibels.domain()[1], scaleDecibels.domain()[0]],
   scaleDecibels.range()
@@ -47,7 +47,7 @@ interface FFTVizProps {
 }
 
 /*
- * Render a Tone.MeterBase instance
+ * Render a Tone.FFT instance
  */
 export default function FFTViz(props: FFTVizProps): JSX.Element {
   const { meter } = props
