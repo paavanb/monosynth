@@ -14,6 +14,7 @@ import ScaledEnvelopeController from './ScaledEnvelopeController'
 import ToneViz from './ToneViz'
 import FFTViz from './FFTViz'
 import WaveformViz from './WaveformViz'
+import HarmonicsController from './HarmonicsController'
 import cs from './styles.module.css'
 
 // Avoid lookAhead delay https://github.com/Tonejs/Tone.js/issues/306
@@ -30,6 +31,8 @@ export default function MonoSynth(): JSX.Element {
   const [oscillatorChangeId, setOscillatorChangeId] = useState(0)
   const fft = useMemo(() => new Tone.FFT(1024), [])
   const waveform = useMemo(() => new Tone.Waveform(2048), [])
+  const [subOscEnabled, setSubOscEnabled] = useState(false)
+  const [subSubOscEnabled, setSubSubOscEnabled] = useState(false)
 
   const detuneLFO = useMemo(
     () => new Tone.LFO({ amplitude: 0, max: 1200, min: -1200 }),
@@ -128,12 +131,32 @@ export default function MonoSynth(): JSX.Element {
   useLayoutEffect(() => {
     // Pass the synth through the FFT so we can record the frequency distribution
     synth.chain(fft, waveform, Tone.Destination)
+
+    // The last component before Tone.Destination
+    const lastComponent = waveform
+    const subOscPitchShift = new Tone.PitchShift({
+      pitch: -12,
+      context: lastComponent.context,
+    })
+    const subSubOscPitchShift = new Tone.PitchShift({
+      pitch: -24,
+      context: lastComponent.context,
+    })
+    if (subOscEnabled) {
+      lastComponent.chain(subOscPitchShift, Tone.Destination)
+    }
+    if (subSubOscEnabled) {
+      lastComponent.chain(subSubOscPitchShift, Tone.Destination)
+    }
+
     return () => {
       synth.toDestination()
       fft.disconnect()
       waveform.disconnect()
+      subOscPitchShift.disconnect().dispose()
+      subSubOscPitchShift.disconnect().dispose()
     }
-  }, [synth, fft, waveform])
+  }, [synth, fft, waveform, subOscEnabled, subSubOscEnabled])
 
   return (
     <div className={cs.synthContainer}>
@@ -152,6 +175,12 @@ export default function MonoSynth(): JSX.Element {
           <VCO
             oscillator={synth.oscillator}
             onChange={triggerOscillatorChange}
+          />
+          <HarmonicsController
+            subOscEnabled={subOscEnabled}
+            subSubOscEnabled={subSubOscEnabled}
+            onSubOscEnabledChange={setSubOscEnabled}
+            onSubSubOscEnabledChange={setSubSubOscEnabled}
           />
         </div>
         <div style={{ width: 300 }}>

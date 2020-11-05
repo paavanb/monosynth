@@ -38,34 +38,28 @@ const amplitudeTickValues = [-1, -0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75, 1]
 const TRIGGER = 0
 
 /*
- * Given a buffer of data and a desired "trigger" level, get the bounds of one period
- * starting and ending at that trigger level.
+ * Given a buffer of data and a desired "trigger" level, get the bounds of as many periods
+ * as possible starting and ending at that trigger level.
  */
-function getTriggerIndexes(
-  buffer: Float32Array,
-  trigger = 0
-): [number, number] {
-  let rising = true
+function getWindowBounds(buffer: Float32Array, trigger = 0): [number, number] {
   let boundStart = 0
+  let boundEnd = buffer.length
   let startFound = false
   for (let i = 0; i < buffer.length; i++) {
     if (i > 0) {
       // Rising trigger
-      if (rising && buffer[i - 1] < trigger && buffer[i] >= trigger) {
+      if (buffer[i - 1] < trigger && buffer[i] >= trigger) {
         if (!startFound) {
           boundStart = i
           startFound = true
-        } else return [boundStart, i]
-      }
-
-      // Falling trigger
-      if (!rising && buffer[i - 1] > trigger && buffer[i] <= trigger) {
-        rising = false
+        } else {
+          boundEnd = i
+        }
       }
     }
   }
 
-  return [0, buffer.length]
+  return [boundStart, boundEnd]
 }
 
 interface WaveformVizProps {
@@ -81,7 +75,7 @@ export default function WaveformViz(props: WaveformVizProps): JSX.Element {
   const [buffer, setBuffer] = useState<Float32Array>(new Float32Array())
 
   const path = useMemo(() => {
-    const [startIndex, endIndex] = getTriggerIndexes(buffer, TRIGGER)
+    const [startIndex, endIndex] = getWindowBounds(buffer, TRIGGER)
     const length = endIndex - startIndex
     const scale = scaleLinear([0, length], [0, INNER_WIDTH])
     const indexes = range(0, length)
