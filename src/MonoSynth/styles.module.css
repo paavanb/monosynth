@@ -67,9 +67,16 @@ rect.lfoPad {
 }
 
 .toneViz path {
-  fill: none;
   stroke: #0088ff;
   stroke-width: 2px;
+}
+
+.toneViz path.tonePath {
+  fill: none;
+}
+
+.toneViz path.waveformPath {
+  fill: aliceblue;
 }
 
 .keyboard {

@@ -105,7 +105,7 @@ export default function ToneViz(props: ToneVizProps): JSX.Element {
             scale(1, -1)
           `}
         >
-          {path && <path d={path} />}
+          {path && <path d={path} className={cs.tonePath} />}
         </Group>
       </Group>
     </svg>

@@ -1,11 +1,11 @@
 import React from 'react'
 import { useState, useEffect, useMemo } from 'react'
 import { Group } from '@vx/group'
-import { AxisBottom, AxisLeft } from '@vx/axis'
-import { Grid } from '@vx/grid'
+import { AxisLeft } from '@vx/axis'
+import { GridRows } from '@vx/grid'
 import * as Tone from 'tone'
 import { range } from 'd3'
-import { scaleLinear, scaleSymlog } from 'd3-scale'
+import { scaleLinear } from 'd3-scale'
 import { format } from 'd3-format'
 
 import cs from './styles.module.css'
@@ -30,7 +30,9 @@ const INNER_HEIGHT = 200
 const WIDTH = INNER_WIDTH + Padding.Left + Padding.Right
 const HEIGHT = INNER_HEIGHT + Padding.Top + Padding.Bottom
 
-const scaleWaveform = scaleLinear([-1, 1], [0, INNER_HEIGHT])
+const scaleAmplitude = scaleLinear([-1, 1], [0, INNER_HEIGHT])
+const formatAmplitude = format('.0%')
+const amplitudeTickValues = [-1, -0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75, 1]
 
 // Waveform oscilloscope trigger "voltage". Allows us to display a consistent waveform
 const TRIGGER = 0
@@ -89,7 +91,7 @@ export default function WaveformViz(props: WaveformVizProps): JSX.Element {
         const value = buffer[index + startIndex]
         const svgPathCommand = index === 0 ? 'M' : 'L'
         return `${svgPathCommand} ${scale(index) as number} ${
-          scaleWaveform(value) as number
+          scaleAmplitude(value) as number
         }`
       })
       .join(' ')
@@ -114,9 +116,27 @@ export default function WaveformViz(props: WaveformVizProps): JSX.Element {
       <Group left={Margin.Left} top={Margin.Top}>
         <rect className={cs.window} width={WIDTH} height={HEIGHT} />
         <Group left={Padding.Left} top={Padding.Top}>
+          <AxisLeft
+            scale={scaleAmplitude}
+            tickFormat={formatAmplitude}
+            tickValues={amplitudeTickValues}
+            tickLength={0}
+          />
+          <GridRows
+            scale={scaleAmplitude}
+            tickValues={amplitudeTickValues}
+            width={INNER_WIDTH}
+          />
+          <line
+            x1={0}
+            y1={INNER_HEIGHT / 2}
+            x2={INNER_WIDTH}
+            y2={INNER_HEIGHT / 2}
+            stroke="gray"
+          />
           {/* Translate/scale so that origin is at bottom left */}
           <Group transform={`translate(0, ${INNER_HEIGHT}) scale(1, -1)`}>
-            {path && <path d={path} />}
+            {path && <path d={path} className={cs.waveformPath} />}
           </Group>
         </Group>
       </Group>

@@ -29,7 +29,7 @@ export default function MonoSynth(): JSX.Element {
   // in this state variable, which we can then use as dependencies for hooks
   const [oscillatorChangeId, setOscillatorChangeId] = useState(0)
   const fft = useMemo(() => new Tone.FFT(1024), [])
-  const waveform = useMemo(() => new Tone.Waveform(1024), [])
+  const waveform = useMemo(() => new Tone.Waveform(2048), [])
 
   const detuneLFO = useMemo(
     () => new Tone.LFO({ amplitude: 0, max: 1200, min: -1200 }),

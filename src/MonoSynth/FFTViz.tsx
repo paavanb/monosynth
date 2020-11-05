@@ -106,7 +106,7 @@ export default function FFTViz(props: FFTVizProps): JSX.Element {
             labelOffset={27}
           />
           <Group transform={`translate(0, ${INNER_HEIGHT}) scale(1, -1)`}>
-            {path && <path d={path} />}
+            {path && <path d={path} className={cs.tonePath} />}
           </Group>
         </Group>
       </Group>
