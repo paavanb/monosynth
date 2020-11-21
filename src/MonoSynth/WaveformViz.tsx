@@ -31,6 +31,7 @@ const WIDTH = INNER_WIDTH + Padding.Left + Padding.Right
 const HEIGHT = INNER_HEIGHT + Padding.Top + Padding.Bottom
 
 const scaleAmplitude = scaleLinear([-1, 1], [0, INNER_HEIGHT])
+const flipScaleAmplitude = scaleAmplitude.copy().range([INNER_HEIGHT, 0])
 const formatAmplitude = format('.0%')
 const amplitudeTickValues = [-1, -0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75, 1]
 
@@ -111,13 +112,13 @@ export default function WaveformViz(props: WaveformVizProps): JSX.Element {
         <rect className={cs.window} width={WIDTH} height={HEIGHT} />
         <Group left={Padding.Left} top={Padding.Top}>
           <AxisLeft
-            scale={scaleAmplitude}
+            scale={flipScaleAmplitude}
             tickFormat={formatAmplitude}
             tickValues={amplitudeTickValues}
             tickLength={0}
           />
           <GridRows
-            scale={scaleAmplitude}
+            scale={flipScaleAmplitude}
             tickValues={amplitudeTickValues}
             width={INNER_WIDTH}
           />
