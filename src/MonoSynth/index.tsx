@@ -130,31 +130,36 @@ export default function MonoSynth(): JSX.Element {
 
   useLayoutEffect(() => {
     // Pass the synth through the FFT so we can record the frequency distribution
-    synth.chain(fft, waveform, Tone.Destination)
+    synth.connect(fft)
+    synth.connect(waveform)
+    synth.toDestination()
 
-    // The last component before Tone.Destination
-    const lastComponent = waveform
     const subOscPitchShift = new Tone.PitchShift({
       pitch: -12,
-      context: lastComponent.context,
+      context: synth.context,
     })
     const subSubOscPitchShift = new Tone.PitchShift({
       pitch: -24,
-      context: lastComponent.context,
+      context: synth.context,
     })
+
     if (subOscEnabled) {
-      lastComponent.chain(subOscPitchShift, Tone.Destination)
+      synth.chain(subOscPitchShift, Tone.Destination)
+      subOscPitchShift.connect(fft)
+      subOscPitchShift.connect(waveform)
     }
     if (subSubOscEnabled) {
-      lastComponent.chain(subSubOscPitchShift, Tone.Destination)
+      synth.chain(subSubOscPitchShift, Tone.Destination)
+      subSubOscPitchShift.connect(fft)
+      subSubOscPitchShift.connect(waveform)
     }
 
     return () => {
-      synth.toDestination()
-      fft.disconnect()
-      waveform.disconnect()
+      synth.disconnect()
       subOscPitchShift.disconnect().dispose()
       subSubOscPitchShift.disconnect().dispose()
+
+      synth.toDestination()
     }
   }, [synth, fft, waveform, subOscEnabled, subSubOscEnabled])
 
