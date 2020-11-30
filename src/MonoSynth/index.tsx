@@ -74,37 +74,6 @@ export default function MonoSynth(): JSX.Element {
     []
   )
 
-  const recordOscillator = useCallback(
-    (context: Tone.Context) => {
-      const now = Tone.now()
-
-      // Clone the oscillator
-      const { harmonicity, width } = synth.oscillator
-      const osc = new Tone.OmniOscillator({
-        context,
-        frequency: 440,
-        type: synth.oscillator.type,
-        harmonicity: harmonicity && harmonicity.getValueAtTime(now),
-        width: width && width.getValueAtTime(now),
-      })
-
-      // Clone the filter
-      const { Q, gain, type: filterType } = synth.filter
-      const { baseFrequency } = synth.filterEnvelope
-      const filter = new Tone.Filter({
-        type: filterType,
-        frequency: Tone.Frequency(baseFrequency).toFrequency(),
-        Q: Q.getValueAtTime(now),
-        gain: gain.getValueAtTime(now),
-      })
-      osc.chain(filter, context.destination).start()
-    },
-    // CAREFUL: Since we need oscillatorChangeId as a hook dep, we have to disable
-    // the rule. Watch dependencies carefully!
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [synth.oscillator, oscillatorChangeId] // Re-record if oscillator changed
-  )
-
   const triggerOscillatorChange = useCallback(() => {
     // 1000 is just to avoid integer overflow, large enough that multiple
     // calls still trigger a change.
@@ -170,11 +139,6 @@ export default function MonoSynth(): JSX.Element {
         <WaveformViz meter={waveform} />
       </div>
       <div className={cs.synthControls}>
-        <ToneViz
-          contextRecorder={recordOscillator}
-          recordDuration={0.01}
-          bounds={[-1, 1]}
-        />
         <div>
           <header>VCO</header>
           <VCO
