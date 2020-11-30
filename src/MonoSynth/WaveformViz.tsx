@@ -1,5 +1,5 @@
 import React from 'react'
-import { useState, useEffect, useMemo } from 'react'
+import { useLayoutEffect, useState, useEffect, useMemo } from 'react'
 import { Group } from '@vx/group'
 import { AxisLeft } from '@vx/axis'
 import { GridRows } from '@vx/grid'
@@ -39,28 +39,33 @@ const amplitudeTickValues = [-1, -0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75, 1]
 const TRIGGER = 0
 
 /*
- * Given a buffer of data and a desired "trigger" level, get the bounds of as many periods
+ * Given a buffer of data and a desired "trigger" level, get the indices of as many periods
  * as possible starting and ending at that trigger level.
  */
-function getWindowBounds(buffer: Float32Array, trigger = 0): [number, number] {
-  let boundStart = 0
-  let boundEnd = buffer.length
+function getWindowBounds(buffer: Float32Array, trigger = 0): number[] {
   let startFound = false
+  let periodIndices = []
   for (let i = 0; i < buffer.length; i++) {
     if (i > 0) {
       // Rising trigger
       if (buffer[i - 1] < trigger && buffer[i] >= trigger) {
         if (!startFound) {
-          boundStart = i
           startFound = true
+          periodIndices.push(i)
         } else {
-          boundEnd = i
+          periodIndices.push(i)
         }
       }
     }
   }
 
-  return [boundStart, boundEnd]
+  if (!startFound) {
+    periodIndices = [0, buffer.length]
+  } else if (periodIndices.length === 1) {
+    periodIndices.push(buffer.length)
+  }
+
+  return periodIndices
 }
 
 interface WaveformVizProps {
@@ -75,8 +80,31 @@ export default function WaveformViz(props: WaveformVizProps): JSX.Element {
 
   const [buffer, setBuffer] = useState<Float32Array>(new Float32Array())
 
+  const waveformPeriodIndices = useMemo(
+    () => getWindowBounds(buffer, TRIGGER),
+    [buffer]
+  )
+  // The number of waveform periods to draw
+  const [numPeriods, setNumPeriods] = useState(0)
+
+  useLayoutEffect(() => {
+    // Attempt to draw as many periods as the previous render, in order to maintain
+    // visual consistency between frames (i.e., no flickering between 4 periods vs 5)
+    setNumPeriods((prevNumPeriods) => {
+      const difference = waveformPeriodIndices.length - prevNumPeriods
+      // If we're only one period off from the previous render, render the same number
+      // of periods as the last frame
+      if (difference === 1) {
+        return prevNumPeriods
+      } else {
+        return waveformPeriodIndices.length
+      }
+    })
+  }, [waveformPeriodIndices, numPeriods])
+
   const path = useMemo(() => {
-    const [startIndex, endIndex] = getWindowBounds(buffer, TRIGGER)
+    const startIndex = waveformPeriodIndices[0]
+    const endIndex = waveformPeriodIndices[numPeriods - 1]
     const length = endIndex - startIndex
     const scale = scaleLinear([0, length], [0, INNER_WIDTH])
     const indexes = range(0, length)
@@ -90,7 +118,7 @@ export default function WaveformViz(props: WaveformVizProps): JSX.Element {
         }`
       })
       .join(' ')
-  }, [buffer])
+  }, [buffer, numPeriods, waveformPeriodIndices])
 
   useEffect(() => {
     const intervalId = setInterval(
