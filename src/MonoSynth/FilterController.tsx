@@ -59,25 +59,18 @@ const FILTERS_WITH_GAIN = new Set(['lowshelf', 'highshelf', 'peaking'])
 interface FilterControllerProps {
   filterEnvelope: Tone.FrequencyEnvelope
   filter: Tone.Filter
-  // Signal that some property of the filter changed
-  onChange: () => void
 }
 
 export default function FilterController(
   props: FilterControllerProps
 ): JSX.Element {
-  const { filterEnvelope, filter, onChange } = props
+  const { filterEnvelope, filter } = props
   const [filterType, setFilterType] = useState<BiquadFilterType>('lowpass')
   const [freq, setFreq] = useState(
     Tone.Frequency(filterEnvelope.baseFrequency).toFrequency()
   )
   const [quality, setQuality] = useState(1)
   const [gain, setGain] = useState(0)
-
-  // triggerOnChange
-  useEffect(() => {
-    onChange()
-  }, [onChange, filterType, freq, quality, gain])
 
   // syncFilterFrequency
   useEffect(() => {

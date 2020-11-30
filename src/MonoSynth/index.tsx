@@ -11,7 +11,6 @@ import ScaledEnvelope from './ScaledEnvelope'
 import FilterController from './FilterController'
 import EnvelopeController from './EnvelopeController'
 import ScaledEnvelopeController from './ScaledEnvelopeController'
-import ToneViz from './ToneViz'
 import FFTViz from './FFTViz'
 import WaveformViz from './WaveformViz'
 import HarmonicsController from './HarmonicsController'
@@ -26,9 +25,6 @@ const detuneFormat = format('.1f')
 
 export default function MonoSynth(): JSX.Element {
   const synth = useMemo(() => new Tone.MonoSynth().toDestination(), [])
-  // Since Tonejs objects are mutable, change events instead trigger a change
-  // in this state variable, which we can then use as dependencies for hooks
-  const [oscillatorChangeId, setOscillatorChangeId] = useState(0)
   const fft = useMemo(() => new Tone.FFT(1024), [])
   const waveform = useMemo(() => new Tone.Waveform(2048), [])
   const [subOscEnabled, setSubOscEnabled] = useState(false)
@@ -73,12 +69,6 @@ export default function MonoSynth(): JSX.Element {
     (detune: number) => `${detuneFormat(detune / 100)} st`,
     []
   )
-
-  const triggerOscillatorChange = useCallback(() => {
-    // 1000 is just to avoid integer overflow, large enough that multiple
-    // calls still trigger a change.
-    setOscillatorChangeId((prevId) => (prevId + 1) % 1000)
-  }, [])
 
   // manageSynth
   // Wire up the detune LFO
@@ -139,12 +129,17 @@ export default function MonoSynth(): JSX.Element {
         <WaveformViz meter={waveform} />
       </div>
       <div className={cs.synthControls}>
+        <RibbonKeyboard
+          onFrequencyChange={changeFrequency}
+          triggerAttack={triggerAttack}
+          triggerRelease={triggerRelease}
+        />
+        <Keyboard triggerAttack={triggerAttack} triggerRelease={triggerRelease} />
+      </div>
+      <div className={cs.synthControls}>
         <div>
           <header>VCO</header>
-          <VCO
-            oscillator={synth.oscillator}
-            onChange={triggerOscillatorChange}
-          />
+          <VCO oscillator={synth.oscillator} />
           <HarmonicsController
             subOscEnabled={subOscEnabled}
             subSubOscEnabled={subSubOscEnabled}
@@ -157,7 +152,6 @@ export default function MonoSynth(): JSX.Element {
           <FilterController
             filterEnvelope={synth.filterEnvelope}
             filter={synth.filter}
-            onChange={triggerOscillatorChange}
           />
         </div>
         <div>
@@ -169,11 +163,6 @@ export default function MonoSynth(): JSX.Element {
           />
         </div>
       </div>
-      <RibbonKeyboard
-        onFrequencyChange={changeFrequency}
-        triggerAttack={triggerAttack}
-        triggerRelease={triggerRelease}
-      />
       <div className={cs.synthControls}>
         <div>
           <header>Amplitude Envelope</header>
@@ -197,7 +186,6 @@ export default function MonoSynth(): JSX.Element {
           <EnvelopeController envelope={synth.filterEnvelope} />
         </div>
       </div>
-      <Keyboard triggerAttack={triggerAttack} triggerRelease={triggerRelease} />
     </div>
   )
 }
