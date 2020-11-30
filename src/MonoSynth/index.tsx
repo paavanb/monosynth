@@ -125,8 +125,14 @@ export default function MonoSynth(): JSX.Element {
   return (
     <div className={cs.synthContainer}>
       <div className={cs.synthControls}>
-        <FFTViz meter={fft} />
-        <WaveformViz meter={waveform} />
+        <div>
+          <header>Spectrum Analyzer</header>
+          <FFTViz meter={fft} />
+        </div>
+        <div>
+          <header>Oscilloscope</header>
+          <WaveformViz meter={waveform} />
+        </div>
       </div>
       <div className={cs.synthControls}>
         <RibbonKeyboard
