@@ -134,7 +134,10 @@ export default function MonoSynth(): JSX.Element {
           triggerAttack={triggerAttack}
           triggerRelease={triggerRelease}
         />
-        <Keyboard triggerAttack={triggerAttack} triggerRelease={triggerRelease} />
+        <Keyboard
+          triggerAttack={triggerAttack}
+          triggerRelease={triggerRelease}
+        />
       </div>
       <div className={cs.synthControls}>
         <div>
