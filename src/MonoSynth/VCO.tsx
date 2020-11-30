@@ -42,7 +42,8 @@ const harmonicityInterpolator = piecewise(interpolateNumber, [
 ])
 
 const semitoneScale = scaleLinear([-12, 12], [0, 1])
-const semitoneToHarmonicity = (semitones: number) => harmonicityInterpolator(semitoneScale(semitones) as number)
+const semitoneToHarmonicity = (semitones: number) =>
+  harmonicityInterpolator(semitoneScale(semitones) as number)
 
 const OSCILLATOR_OPTIONS = [
   {
@@ -90,13 +91,12 @@ interface OscillatorControllerProps<
   T extends Tone.PulseOscillator | Tone.AMOscillator | Tone.FMOscillator
 > {
   oscillator: Tone.OmniOscillator<T>
-  onChange: () => void
 }
 
 function PulseOscillatorControls(
   props: OscillatorControllerProps<Tone.PulseOscillator>
 ): JSX.Element {
-  const { oscillator, onChange } = props
+  const { oscillator } = props
   // Width is in [-1, 0, 1]
   const [width, setWidth] = useState(0)
   // Duty cycle is in [0, 1]
@@ -108,9 +108,8 @@ function PulseOscillatorControls(
     // So we have to check that width exists
     if (oscillator.width) {
       oscillator.width.setValueAtTime(width, Tone.now())
-      onChange()
     }
-  }, [width, oscillator.width, onChange])
+  }, [width, oscillator.width])
 
   return (
     <div className={cs.control}>
@@ -135,7 +134,7 @@ function PulseOscillatorControls(
 function HarmonicOscillatorControls<
   T extends Tone.AMOscillator | Tone.FMOscillator
 >(props: OscillatorControllerProps<T>): JSX.Element {
-  const { oscillator, onChange } = props
+  const { oscillator } = props
   // Set the semitone offset between the carrier and modulating frequencies
   const [semitones, setSemitones] = useState(0)
 
@@ -146,9 +145,8 @@ function HarmonicOscillatorControls<
     if (oscillator.harmonicity) {
       const harmonicity = semitoneToHarmonicity(semitones)
       oscillator.harmonicity.setValueAtTime(harmonicity, Tone.now())
-      onChange()
     }
-  }, [semitones, oscillator.harmonicity, onChange])
+  }, [semitones, oscillator.harmonicity])
 
   return (
     <div className={cs.control}>
@@ -172,12 +170,10 @@ function HarmonicOscillatorControls<
 
 interface VCOProps {
   oscillator: Tone.OmniOscillator<any> // eslint-disable-line @typescript-eslint/no-explicit-any
-  // Signal that a property of the oscillator changed
-  onChange: () => void
 }
 
 export default function VCO(props: VCOProps): JSX.Element {
-  const { oscillator, onChange } = props
+  const { oscillator } = props
   const [oscType, setOscType] = useState<OscillatorType>(oscillator.type)
   const [modulationType, setModulationType] = useState<string>('')
 
@@ -191,9 +187,7 @@ export default function VCO(props: VCOProps): JSX.Element {
       // @ts-ignore
       oscillator.type = modulationType + oscType
     }
-
-    onChange()
-  }, [oscillator, oscType, modulationType, onChange])
+  }, [oscillator, oscType, modulationType])
 
   return (
     <form style={{ textAlign: 'center', width: 300 }}>
@@ -232,11 +226,11 @@ export default function VCO(props: VCOProps): JSX.Element {
         </div>
       )}
       {oscType === 'pulse' && (
-        <PulseOscillatorControls oscillator={oscillator} onChange={onChange} />
+        <PulseOscillatorControls oscillator={oscillator} />
       )}
       {oscType !== 'pulse' &&
         (modulationType === 'fm' || modulationType === 'am') && (
-          <HarmonicOscillatorControls oscillator={oscillator} onChange={onChange} />
+          <HarmonicOscillatorControls oscillator={oscillator} />
         )}
     </form>
   )

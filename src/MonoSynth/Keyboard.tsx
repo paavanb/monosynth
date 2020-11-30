@@ -149,9 +149,6 @@ export default function Keyboard(props: KeyboardProps): JSX.Element {
   }, [handleKeyDown, handleKeyUp])
 
   return (
-    <div className={cs.keyboard}>
-      <div>Keyboard!</div>
-      <div>{activeNote}</div>
-    </div>
+    <div className={cs.keyboard}></div>
   )
 }

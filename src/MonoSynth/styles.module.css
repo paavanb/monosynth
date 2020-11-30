@@ -14,7 +14,7 @@ rect.lfoPad {
 .synthControls {
   display: flex;
   justify-content: center;
-  margin-top: 2rem;
+  margin: 2rem 0;
 }
 
 .synthControls > * {
@@ -61,15 +61,22 @@ rect.lfoPad {
   margin-top: 4px;
 }
 
-.envelopeViz rect.window {
+.toneViz rect.window {
   fill: #fff;
   rx: 2px;
 }
 
-.envelopeViz path {
-  fill: none;
+.toneViz path {
   stroke: #0088ff;
   stroke-width: 2px;
+}
+
+.toneViz path.tonePath {
+  fill: none;
+}
+
+.toneViz path.waveformPath {
+  fill: aliceblue;
 }
 
 .keyboard {

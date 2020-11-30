@@ -50,7 +50,7 @@ export default function ToneViz(props: ToneVizProps): JSX.Element {
     sampleRate = DEFAULT_SAMPLE_RATE,
   } = props
 
-  const [asyncEnvelopeBuffer, setAsyncEnvelopeBuffer] = useState<
+  const [asyncToneBuffer, setAsyncToneBuffer] = useState<
     AsyncValue<Tone.ToneAudioBuffer>
   >({ status: 'pending' })
 
@@ -61,13 +61,13 @@ export default function ToneViz(props: ToneVizProps): JSX.Element {
       },
       recordDuration,
       1,
-      sampleRate,
+      sampleRate
     )
       .then((buffer) => {
-        setAsyncEnvelopeBuffer({ status: 'ready', value: buffer })
+        setAsyncToneBuffer({ status: 'ready', value: buffer })
       })
       .catch(() => {
-        setAsyncEnvelopeBuffer({
+        setAsyncToneBuffer({
           status: 'error',
           error: 'Error creating buffer.',
         })
@@ -79,22 +79,22 @@ export default function ToneViz(props: ToneVizProps): JSX.Element {
   }, [updateGraph])
 
   const path = useMemo(() => {
-    if (asyncEnvelopeBuffer.status !== 'ready') return null
+    if (asyncToneBuffer.status !== 'ready') return null
 
     return audioBufferSVGPath(
-      asyncEnvelopeBuffer.value,
+      asyncToneBuffer.value,
       INNER_WIDTH,
       INNER_HEIGHT,
-      Math.max(500, sampleRate * recordDuration),
+      Math.min(500, sampleRate * recordDuration),
       scaleLinear([bounds[0], bounds[1]], [0, 1])
     )
-  }, [asyncEnvelopeBuffer, bounds, sampleRate, recordDuration])
+  }, [asyncToneBuffer, bounds, sampleRate, recordDuration])
 
   return (
     <svg
       width={WIDTH + Margin.Left + Margin.Right}
       height={HEIGHT + Margin.Top + Margin.Bottom}
-      className={cs.envelopeViz}
+      className={cs.toneViz}
     >
       <Group left={Margin.Left} top={Margin.Top}>
         <rect className={cs.window} width={WIDTH} height={HEIGHT} />
@@ -105,7 +105,7 @@ export default function ToneViz(props: ToneVizProps): JSX.Element {
             scale(1, -1)
           `}
         >
-          {path && <path d={path} />}
+          {path && <path d={path} className={cs.tonePath} />}
         </Group>
       </Group>
     </svg>
