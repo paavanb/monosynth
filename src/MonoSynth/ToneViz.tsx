@@ -61,7 +61,7 @@ export default function ToneViz(props: ToneVizProps): JSX.Element {
       },
       recordDuration,
       1,
-      sampleRate,
+      sampleRate
     )
       .then((buffer) => {
         setAsyncToneBuffer({ status: 'ready', value: buffer })
