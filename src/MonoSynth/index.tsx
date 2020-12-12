@@ -2,6 +2,7 @@ import React from 'react'
 import { useState, useMemo, useCallback, useLayoutEffect } from 'react'
 import * as Tone from 'tone'
 import { format } from 'd3-format'
+import cx from 'classnames'
 
 import Keyboard from './Keyboard'
 import RibbonKeyboard from './RibbonKeyboard'
@@ -124,17 +125,7 @@ export default function MonoSynth(): JSX.Element {
 
   return (
     <div className={cs.synthContainer}>
-      <div className={cs.synthControls}>
-        <div>
-          <header>Spectrum Analyzer</header>
-          <FFTViz meter={fft} />
-        </div>
-        <div>
-          <header>Oscilloscope</header>
-          <WaveformViz meter={waveform} />
-        </div>
-      </div>
-      <div className={cs.synthControls}>
+      <div className={cx(cs.keyboardContainer, cs.fixedFooter)}>
         <RibbonKeyboard
           onFrequencyChange={changeFrequency}
           triggerAttack={triggerAttack}
@@ -144,6 +135,16 @@ export default function MonoSynth(): JSX.Element {
           triggerAttack={triggerAttack}
           triggerRelease={triggerRelease}
         />
+      </div>
+      <div className={cs.synthControls}>
+        <div>
+          <header>Spectrum Analyzer</header>
+          <FFTViz meter={fft} />
+        </div>
+        <div>
+          <header>Oscilloscope</header>
+          <WaveformViz meter={waveform} />
+        </div>
       </div>
       <div className={cs.synthControls}>
         <div>

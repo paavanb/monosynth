@@ -79,6 +79,16 @@ rect.lfoPad {
   fill: aliceblue;
 }
 
-.keyboard {
-  height: 100px;
+.keyboardContainer {
+  padding: 1rem 0 0;
+}
+
+.fixedFooter {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  /* Center it */
+  transform: translateX(-50%);
+  width: 100%;
+  background-color: #282c34;
 }
