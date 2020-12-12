@@ -27,7 +27,15 @@ export default function MonoSynth(): JSX.Element {
   const synth = useMemo(() => new Tone.MonoSynth().toDestination(), [])
   const fft = useMemo(() => new Tone.FFT(1024), [])
   const waveform = useMemo(() => new Tone.Waveform(2048), [])
+  const subOscillator = useMemo(
+    () => new Tone.Oscillator({ type: 'sine', context: synth.context }),
+    [synth.context]
+  )
   const [subOscEnabled, setSubOscEnabled] = useState(false)
+  const subSubOscillator = useMemo(
+    () => new Tone.Oscillator({ type: 'sine', context: synth.context }),
+    [synth.context]
+  )
   const [subSubOscEnabled, setSubSubOscEnabled] = useState(false)
 
   const detuneLFO = useMemo(
@@ -47,22 +55,35 @@ export default function MonoSynth(): JSX.Element {
 
   const triggerAttack = useCallback(
     (note: string | number | Tone.FrequencyClass<number>) => {
-      synth.triggerAttack(note)
-      pitchEnvelope.triggerAttack()
+      const now = synth.now()
+      synth.triggerAttack(note, now)
+      pitchEnvelope.triggerAttack(now)
+
+      // Set frequencies for sub oscillators
+      const freq = Tone.Frequency(note).toFrequency()
+      subOscillator.frequency.setValueAtTime(freq / 2, now)
+      subOscillator.start(now)
+      subSubOscillator.frequency.setValueAtTime(freq / 4, now)
+      subSubOscillator.start(now)
     },
-    [synth, pitchEnvelope]
+    [synth, subOscillator, subSubOscillator, pitchEnvelope]
   )
 
   const triggerRelease = useCallback(() => {
     synth.triggerRelease()
+    subOscillator.stop()
+    subSubOscillator.stop()
     pitchEnvelope.triggerRelease()
-  }, [synth, pitchEnvelope])
+  }, [synth, subOscillator, subSubOscillator, pitchEnvelope])
 
   const changeFrequency = useCallback(
     (hz: number) => {
-      synth.oscillator.frequency.setValueAtTime(hz, Tone.now())
+      const now = Tone.now()
+      synth.oscillator.frequency.setValueAtTime(hz, now)
+      subOscillator.frequency.setValueAtTime(hz / 2, now)
+      subSubOscillator.frequency.setValueAtTime(hz / 4, now)
     },
-    [synth.oscillator]
+    [synth.oscillator, subOscillator, subSubOscillator]
   )
 
   const formatDetune = useCallback(
@@ -93,34 +114,28 @@ export default function MonoSynth(): JSX.Element {
     synth.connect(waveform)
     synth.toDestination()
 
-    const subOscPitchShift = new Tone.PitchShift({
-      pitch: -12,
-      context: synth.context,
-    })
-    const subSubOscPitchShift = new Tone.PitchShift({
-      pitch: -24,
-      context: synth.context,
-    })
-
     if (subOscEnabled) {
-      synth.chain(subOscPitchShift, Tone.Destination)
-      subOscPitchShift.connect(fft)
-      subOscPitchShift.connect(waveform)
+      subOscillator.connect(synth.filter)
     }
     if (subSubOscEnabled) {
-      synth.chain(subSubOscPitchShift, Tone.Destination)
-      subSubOscPitchShift.connect(fft)
-      subSubOscPitchShift.connect(waveform)
+      subSubOscillator.connect(synth.filter)
     }
 
     return () => {
+      subOscillator.disconnect()
+      subSubOscillator.disconnect()
       synth.disconnect()
-      subOscPitchShift.disconnect().dispose()
-      subSubOscPitchShift.disconnect().dispose()
-
       synth.toDestination()
     }
-  }, [synth, fft, waveform, subOscEnabled, subSubOscEnabled])
+  }, [
+    synth,
+    fft,
+    waveform,
+    subOscillator,
+    subSubOscillator,
+    subOscEnabled,
+    subSubOscEnabled,
+  ])
 
   return (
     <div className={cs.synthContainer}>
