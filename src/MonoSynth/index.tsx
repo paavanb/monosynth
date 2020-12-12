@@ -4,7 +4,6 @@ import * as Tone from 'tone'
 import { format } from 'd3-format'
 import cx from 'classnames'
 
-import Keyboard from './Keyboard'
 import RibbonKeyboard from './RibbonKeyboard'
 import VCO from './VCO'
 import LFOPad from './LFOPad'
@@ -138,7 +137,7 @@ export default function MonoSynth(): JSX.Element {
           <FFTViz meter={fft} />
         </div>
         <div>
-          <header>Oscilloscope</header>
+          <header>Waveform Analyzer</header>
           <WaveformViz meter={waveform} />
         </div>
       </div>

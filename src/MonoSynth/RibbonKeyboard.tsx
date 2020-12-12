@@ -97,7 +97,7 @@ export default function RibbonKeyboard(
 
     const boundingRect = ribbonRef.current.getBoundingClientRect()
     const x = evt.clientX - boundingRect.left
-    const halfSteps = ((x - MIDDLE_C_POS) / WIDTH) * (RIBBON_SPAN)
+    const halfSteps = ((x - MIDDLE_C_POS) / WIDTH) * RIBBON_SPAN
 
     return getFrequency(MIDDLE_C, halfSteps)
   }, [])
@@ -183,7 +183,7 @@ export default function RibbonKeyboard(
             height={HEIGHT}
             scale={scaleRibbon}
             stroke="#666"
-            strokeWidth={3}
+            strokeWidth={1}
             tickValues={evenOctaveTicks}
             lineStyle={{ pointerEvents: 'none' }}
           />
@@ -206,7 +206,7 @@ export default function RibbonKeyboard(
               x2={activeNoteX}
               y2={HEIGHT}
               strokeWidth={3}
-              stroke="#6d98ed"
+              stroke="#6D98ED"
             />
           )}
         </Group>
