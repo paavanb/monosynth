@@ -2,8 +2,11 @@
   text-align: center;
 }
 
-main.container {
+body {
   background-color: #282c34;
+}
+
+main.container {
   min-height: 100vh;
   display: flex;
   flex-direction: column;

@@ -3,8 +3,11 @@ import { useRef, useCallback, useState, useEffect } from 'react'
 import * as Tone from 'tone'
 import { GridColumns } from '@vx/grid'
 import { Group } from '@vx/group'
-import { scaleLinear } from 'd3-scale'
+import { AxisBottom } from '@vx/axis'
+import { scaleLinear, NumberValue } from 'd3-scale'
 import { range } from 'd3'
+
+import cs from './styles.module.css'
 
 const WIDTH = 800
 const HEIGHT = 50
@@ -31,15 +34,24 @@ function getFrequency(anchorFrequency: number, halfSteps: number): number {
 }
 
 function getOctaveTicks(semitoneOffset: number): number[] {
-  return range(OCTAVES).map(
+  return range(OCTAVES + 1).map(
     (octaveIdx) => (octaveIdx - OCTAVES / 2) * 12 + semitoneOffset
   )
 }
 
+const bottomTickLabelProps = () =>
+  ({
+    textAnchor: 'middle',
+    fontFamily: 'Arial',
+    fontSize: 10,
+    fill: 'white',
+    dy: '0.25em',
+  } as const)
+
 enum Margin {
   Top = 0,
-  Right = 0,
-  Left = 0,
+  Right = 16,
+  Left = 16,
   Bottom = 20,
 }
 
@@ -105,11 +117,15 @@ export default function RibbonKeyboard(
     if (!dragging) triggerRelease()
   }, [dragging, triggerRelease])
 
+  const evenOctaveTicks = getOctaveTicks(0).filter((_, idx) => idx % 2 === 0)
+  const oddOctaveTicks = getOctaveTicks(0).filter((_, idx) => idx % 2 === 1)
+
   return (
     <svg
       width={WIDTH + Margin.Left + Margin.Right}
       height={HEIGHT + Margin.Top + Margin.Bottom}
       style={{ userSelect: 'none' }}
+      className={cs.ribbonKeyboard}
     >
       <Group left={Margin.Left} top={Margin.Top}>
         <rect
@@ -119,13 +135,13 @@ export default function RibbonKeyboard(
           style={{ fill: 'white' }}
           onMouseDown={handleMouseDown}
         />
-        {/* Draw columns at perfect fifths */}
+        {/* Draw columns at octaves */}
         <GridColumns
           height={HEIGHT}
           scale={scaleRibbon}
           stroke="#bbb"
           strokeWidth={1}
-          tickValues={getOctaveTicks(0).filter((_, idx) => idx % 2 === 1)}
+          tickValues={oddOctaveTicks}
           lineStyle={{ pointerEvents: 'none' }}
         />
         <GridColumns
@@ -133,8 +149,19 @@ export default function RibbonKeyboard(
           scale={scaleRibbon}
           stroke="#666"
           strokeWidth={3}
-          tickValues={getOctaveTicks(0).filter((_, idx) => idx % 2 === 0)}
+          tickValues={evenOctaveTicks}
           lineStyle={{ pointerEvents: 'none' }}
+        />
+        <AxisBottom
+          top={HEIGHT}
+          scale={scaleRibbon}
+          tickValues={evenOctaveTicks}
+          tickFormat={(value: NumberValue) =>
+            `C${Math.floor(value.valueOf() / 12) + 4}`
+          }
+          tickLabelProps={bottomTickLabelProps}
+          tickLength={0}
+          hideAxisLine
         />
       </Group>
     </svg>
