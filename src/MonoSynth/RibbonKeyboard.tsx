@@ -1,5 +1,5 @@
 import React from 'react'
-import { useRef, useCallback, useState, useEffect } from 'react'
+import { useRef, useCallback, useState, useEffect, useMemo } from 'react'
 import * as Tone from 'tone'
 import { GridColumns } from '@vx/grid'
 import { Group } from '@vx/group'
@@ -7,6 +7,7 @@ import { AxisBottom } from '@vx/axis'
 import { scaleLinear, NumberValue } from 'd3-scale'
 import { range } from 'd3'
 
+import Keyboard from './Keyboard'
 import cs from './styles.module.css'
 
 const WIDTH = 800
@@ -14,6 +15,7 @@ const HEIGHT = 50
 const MIDDLE_C_POS = WIDTH / 2
 
 const MUSICAL_CONST = Math.pow(2, 1 / 12)
+// Frequency of C4
 const MIDDLE_C = 261.626
 
 const OCTAVES = 8
@@ -26,11 +28,19 @@ const scaleRibbon = scaleLinear()
   .range([0, WIDTH])
   .clamp(true)
 
-// frequency = f0 * 2^(1/12)^half_steps
-// Where f0 is a fixed point, e.g. C4 (440Hz), and half_steps is the number of half steps
-// away you are from that fixed point
+/*
+ * Given half steps from a fixed point (e.g., C4), get frequency.
+ * Uses the equation frequency = f0 * 2^(1/12)^half_steps
+ */
 function getFrequency(anchorFrequency: number, halfSteps: number): number {
   return anchorFrequency * Math.pow(MUSICAL_CONST, halfSteps)
+}
+
+/**
+ * Given frequency, get number of half steps from fixed point (e.g., C4)
+ */
+function getHalfSteps(anchorFrequency: number, frequency: number): number {
+  return Math.log(frequency / anchorFrequency) / Math.log(MUSICAL_CONST)
 }
 
 function getOctaveTicks(semitoneOffset: number): number[] {
@@ -67,13 +77,27 @@ export default function RibbonKeyboard(
   const { triggerAttack, triggerRelease, onFrequencyChange } = props
   const [dragging, setDragging] = useState(false)
   const ribbonRef = useRef<SVGRectElement>(null)
+  const [activeFreq, setActiveFreq] = useState<number | null>(null)
+
+  const handleTriggerAttack = useCallback(
+    (freq: string | number | Tone.FrequencyClass<number>) => {
+      triggerAttack(freq)
+      setActiveFreq(Tone.Frequency(freq).toFrequency())
+    },
+    [triggerAttack]
+  )
+
+  const handleTriggerRelease = useCallback(() => {
+    triggerRelease()
+    setActiveFreq(null)
+  }, [triggerRelease])
 
   const getMouseFrequency = useCallback((evt: MouseEvent): number | null => {
     if (!ribbonRef.current) return null
 
     const boundingRect = ribbonRef.current.getBoundingClientRect()
     const x = evt.clientX - boundingRect.left
-    const halfSteps = ((x - MIDDLE_C_POS) / WIDTH) * (RIBBON_SPAN / 2)
+    const halfSteps = ((x - MIDDLE_C_POS) / WIDTH) * (RIBBON_SPAN)
 
     return getFrequency(MIDDLE_C, halfSteps)
   }, [])
@@ -86,7 +110,10 @@ export default function RibbonKeyboard(
     (evt: MouseEvent) => {
       if (dragging) {
         const freq = getMouseFrequency(evt)
-        if (freq !== null) onFrequencyChange(freq)
+        if (freq !== null) {
+          onFrequencyChange(freq)
+          setActiveFreq(Tone.Frequency(freq).toFrequency())
+        }
       }
     },
     [dragging, getMouseFrequency, onFrequencyChange]
@@ -96,9 +123,9 @@ export default function RibbonKeyboard(
     (evt: React.MouseEvent<SVGRectElement, MouseEvent>) => {
       setDragging(true)
       const freq = getMouseFrequency(evt.nativeEvent)
-      if (freq !== null) triggerAttack(freq)
+      if (freq !== null) handleTriggerAttack(freq)
     },
-    [triggerAttack, getMouseFrequency]
+    [handleTriggerAttack, getMouseFrequency]
   )
 
   useEffect(() => {
@@ -114,56 +141,80 @@ export default function RibbonKeyboard(
   }, [dragging, handleMouseMove, stopDrag])
 
   useEffect(() => {
-    if (!dragging) triggerRelease()
-  }, [dragging, triggerRelease])
+    if (!dragging) handleTriggerRelease()
+  }, [dragging, handleTriggerRelease])
 
   const evenOctaveTicks = getOctaveTicks(0).filter((_, idx) => idx % 2 === 0)
   const oddOctaveTicks = getOctaveTicks(0).filter((_, idx) => idx % 2 === 1)
+  const activeNoteX = useMemo(() => {
+    if (activeFreq !== null) {
+      const x = scaleRibbon(getHalfSteps(MIDDLE_C, activeFreq))
+      return x !== undefined ? x : null
+    }
+    return null
+  }, [activeFreq])
 
   return (
-    <svg
-      width={WIDTH + Margin.Left + Margin.Right}
-      height={HEIGHT + Margin.Top + Margin.Bottom}
-      style={{ userSelect: 'none' }}
-      className={cs.ribbonKeyboard}
-    >
-      <Group left={Margin.Left} top={Margin.Top}>
-        <rect
-          ref={ribbonRef}
-          width={WIDTH}
-          height={HEIGHT}
-          style={{ fill: 'white' }}
-          onMouseDown={handleMouseDown}
-        />
-        {/* Draw columns at octaves */}
-        <GridColumns
-          height={HEIGHT}
-          scale={scaleRibbon}
-          stroke="#bbb"
-          strokeWidth={1}
-          tickValues={oddOctaveTicks}
-          lineStyle={{ pointerEvents: 'none' }}
-        />
-        <GridColumns
-          height={HEIGHT}
-          scale={scaleRibbon}
-          stroke="#666"
-          strokeWidth={3}
-          tickValues={evenOctaveTicks}
-          lineStyle={{ pointerEvents: 'none' }}
-        />
-        <AxisBottom
-          top={HEIGHT}
-          scale={scaleRibbon}
-          tickValues={evenOctaveTicks}
-          tickFormat={(value: NumberValue) =>
-            `C${Math.floor(value.valueOf() / 12) + 4}`
-          }
-          tickLabelProps={bottomTickLabelProps}
-          tickLength={0}
-          hideAxisLine
-        />
-      </Group>
-    </svg>
+    <>
+      <svg
+        width={WIDTH + Margin.Left + Margin.Right}
+        height={HEIGHT + Margin.Top + Margin.Bottom}
+        style={{ userSelect: 'none' }}
+        className={cs.ribbonKeyboard}
+      >
+        <Group left={Margin.Left} top={Margin.Top}>
+          <rect
+            ref={ribbonRef}
+            width={WIDTH}
+            height={HEIGHT}
+            style={{ fill: 'white' }}
+            onMouseDown={handleMouseDown}
+          />
+          {/* Draw columns at octaves */}
+          <GridColumns
+            height={HEIGHT}
+            scale={scaleRibbon}
+            stroke="#bbb"
+            strokeWidth={1}
+            tickValues={oddOctaveTicks}
+            lineStyle={{ pointerEvents: 'none' }}
+          />
+          <GridColumns
+            height={HEIGHT}
+            scale={scaleRibbon}
+            stroke="#666"
+            strokeWidth={3}
+            tickValues={evenOctaveTicks}
+            lineStyle={{ pointerEvents: 'none' }}
+          />
+          <AxisBottom
+            top={HEIGHT}
+            scale={scaleRibbon}
+            tickValues={evenOctaveTicks}
+            tickFormat={(value: NumberValue) =>
+              `C${Math.floor(value.valueOf() / 12) + 4}`
+            }
+            tickLabelProps={bottomTickLabelProps}
+            tickLength={0}
+            hideAxisLine
+          />
+          {/* Draw active frequency */}
+          {activeNoteX !== null && (
+            <line
+              x1={activeNoteX}
+              y1={0}
+              x2={activeNoteX}
+              y2={HEIGHT}
+              strokeWidth={3}
+              stroke="#6d98ed"
+            />
+          )}
+        </Group>
+      </svg>
+      <Keyboard
+        triggerAttack={handleTriggerAttack}
+        triggerRelease={handleTriggerRelease}
+      />
+    </>
   )
 }

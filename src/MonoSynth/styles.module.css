@@ -11,7 +11,7 @@
   /* Center it */
   transform: translateX(-50%);
   width: 100%;
-  background-color: #806F49;
+  background-color: #a1813a;
 }
 
 rect.lfoPad {
@@ -93,6 +93,7 @@ rect.lfoPad {
 
 .keyboardContainer {
   padding: 1rem 0 0;
+  box-shadow: rgba(0, 0, 0, 0.33) 0 -10px 8px;
 }
 
 .ribbonKeyboard {
