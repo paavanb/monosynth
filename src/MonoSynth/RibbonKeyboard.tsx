@@ -59,7 +59,7 @@ const bottomTickLabelProps = () =>
   } as const)
 
 enum Margin {
-  Top = 0,
+  Top = 16,
   Right = 16,
   Left = 16,
   Bottom = 20,
@@ -163,6 +163,17 @@ export default function RibbonKeyboard(
         className={cs.ribbonKeyboard}
       >
         <Group left={Margin.Left} top={Margin.Top}>
+          <text
+            fill="white"
+            fontFamily="Arial"
+            fontSize={10}
+            fontWeight="bold"
+            textAnchor="middle"
+            x={WIDTH / 2}
+            y="-6px"
+          >
+            Keyboard
+          </text>
           <rect
             ref={ribbonRef}
             width={WIDTH}
@@ -206,7 +217,7 @@ export default function RibbonKeyboard(
               x2={activeNoteX}
               y2={HEIGHT}
               strokeWidth={3}
-              stroke="#6D98ED"
+              stroke="#0088ff"
             />
           )}
         </Group>
