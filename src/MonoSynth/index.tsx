@@ -28,13 +28,13 @@ export default function MonoSynth(): JSX.Element {
   const fft = useMemo(() => new Tone.FFT(1024), [])
   const waveform = useMemo(() => new Tone.Waveform(2048), [])
   const subOscillator = useMemo(
-    () => new Tone.Oscillator({ type: 'square' }),
-    []
+    () => new Tone.Oscillator({ type: 'sine', context: synth.context }),
+    [synth.context]
   )
   const [subOscEnabled, setSubOscEnabled] = useState(false)
   const subSubOscillator = useMemo(
-    () => new Tone.Oscillator({ type: 'sine' }),
-    []
+    () => new Tone.Oscillator({ type: 'sine', context: synth.context }),
+    [synth.context]
   )
   const [subSubOscEnabled, setSubSubOscEnabled] = useState(false)
 
@@ -55,7 +55,7 @@ export default function MonoSynth(): JSX.Element {
 
   const triggerAttack = useCallback(
     (note: string | number | Tone.FrequencyClass<number>) => {
-      const now = Tone.now()
+      const now = synth.now()
       synth.triggerAttack(note, now)
       pitchEnvelope.triggerAttack(now)
 
@@ -122,8 +122,9 @@ export default function MonoSynth(): JSX.Element {
     }
 
     return () => {
+      subOscillator.disconnect()
+      subSubOscillator.disconnect()
       synth.disconnect()
-
       synth.toDestination()
     }
   }, [
