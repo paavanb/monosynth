@@ -2,8 +2,8 @@ import React from 'react'
 import { useState, useMemo, useCallback, useLayoutEffect } from 'react'
 import * as Tone from 'tone'
 import { format } from 'd3-format'
+import cx from 'classnames'
 
-import Keyboard from './Keyboard'
 import RibbonKeyboard from './RibbonKeyboard'
 import VCO from './VCO'
 import LFOPad from './LFOPad'
@@ -124,26 +124,22 @@ export default function MonoSynth(): JSX.Element {
 
   return (
     <div className={cs.synthContainer}>
+      <div className={cx(cs.keyboardContainer, cs.fixedFooter)}>
+        <RibbonKeyboard
+          onFrequencyChange={changeFrequency}
+          triggerAttack={triggerAttack}
+          triggerRelease={triggerRelease}
+        />
+      </div>
       <div className={cs.synthControls}>
         <div>
           <header>Spectrum Analyzer</header>
           <FFTViz meter={fft} />
         </div>
         <div>
-          <header>Oscilloscope</header>
+          <header>Waveform Analyzer</header>
           <WaveformViz meter={waveform} />
         </div>
-      </div>
-      <div className={cs.synthControls}>
-        <RibbonKeyboard
-          onFrequencyChange={changeFrequency}
-          triggerAttack={triggerAttack}
-          triggerRelease={triggerRelease}
-        />
-        <Keyboard
-          triggerAttack={triggerAttack}
-          triggerRelease={triggerRelease}
-        />
       </div>
       <div className={cs.synthControls}>
         <div>

@@ -1,5 +1,17 @@
 .synthContainer {
   flex: 1 1 auto;
+  /* Account for fixed footer */
+  margin-bottom: 100px;
+}
+
+.fixedFooter {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  /* Center it */
+  transform: translateX(-50%);
+  width: 100%;
+  background-color: #a1813a;
 }
 
 rect.lfoPad {
@@ -79,6 +91,15 @@ rect.lfoPad {
   fill: aliceblue;
 }
 
-.keyboard {
-  height: 100px;
+.keyboardContainer {
+  padding: 0.5rem 0 0;
+  box-shadow: rgba(0, 0, 0, 0.33) 0 -10px 8px;
+}
+
+.ribbonKeyboard {
+  cursor: crosshair;
+}
+
+.keyboardLabel {
+  fill: white;
 }

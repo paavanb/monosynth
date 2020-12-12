@@ -4,8 +4,6 @@ import * as Tone from 'tone'
 
 import { Dictionary } from '../types'
 
-import cs from './styles.module.css'
-
 // [note, octave] tuples
 type Note = [string, number]
 
@@ -148,7 +146,5 @@ export default function Keyboard(props: KeyboardProps): JSX.Element {
     }
   }, [handleKeyDown, handleKeyUp])
 
-  return (
-    <div className={cs.keyboard}></div>
-  )
+  return <></>
 }
