@@ -20,7 +20,7 @@ rect.lfoPad {
 }
 
 .lfoPadMarker {
-  stroke: var(--color-primary);
+  stroke: var(--color-secondary);
 }
 
 .monosynth {
@@ -86,7 +86,7 @@ rect.lfoPad {
 }
 
 .toneViz path {
-  stroke: #0088ff;
+  stroke: var(--color-primary);
   stroke-width: 2px;
 }
 
@@ -105,6 +105,10 @@ rect.lfoPad {
 
 .ribbonKeyboard {
   cursor: crosshair;
+}
+
+.ribbonKeyboard .activeMarker {
+  stroke: var(--color-secondary);
 }
 
 .keyboardLabel {

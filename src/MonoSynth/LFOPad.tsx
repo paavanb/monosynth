@@ -191,7 +191,7 @@ export default function LFOPad(props: LFOProps): JSX.Element {
           cx={markerCoords.x}
           cy={markerCoords.y}
           r={5}
-          strokeWidth={2}
+          strokeWidth={4}
           fill="none"
         />
       </Group>
