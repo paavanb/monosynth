@@ -11,12 +11,16 @@
   /* Center it */
   transform: translateX(-50%);
   width: 100%;
-  background-color: #a1813a;
+  background-color: var(--color-primary);
 }
 
 rect.lfoPad {
   fill: #fff;
   rx: 2px;
+}
+
+.lfoPadMarker {
+  stroke: var(--color-primary);
 }
 
 .monosynth {
@@ -72,6 +76,9 @@ rect.lfoPad {
 .synthControls .control select, .synthControls .control input {
   margin-top: 4px;
 }
+
+/* Cross-browser custom slider colors, created using http://danielstern.ca/range.css/ */
+/* End */
 
 .toneViz rect.window {
   fill: #fff;

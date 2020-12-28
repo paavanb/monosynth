@@ -1,9 +1,15 @@
+:root {
+  --color-base: #3f3f3f;
+  --color-primary: #eb3356;
+  --color-secondary: #902df5;
+}
+
 .App {
   text-align: center;
 }
 
 body {
-  background-color: #282c34;
+  background-color: var(--color-base);
 }
 
 main.container {

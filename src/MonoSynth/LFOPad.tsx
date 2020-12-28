@@ -187,10 +187,10 @@ export default function LFOPad(props: LFOProps): JSX.Element {
         <circle
           // Avoid accidentally intercepting mouse events
           style={{ pointerEvents: 'none' }}
+          className={cs.lfoPadMarker}
           cx={markerCoords.x}
           cy={markerCoords.y}
           r={5}
-          stroke="#920000"
           strokeWidth={2}
           fill="none"
         />
