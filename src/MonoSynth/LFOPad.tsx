@@ -131,8 +131,9 @@ export default function LFOPad(props: LFOProps): JSX.Element {
           ref={padRef}
           width={WIDTH}
           height={HEIGHT}
+          style={{ cursor: 'crosshair' }}
         />
-        <g>
+        <g style={{ cursor: 'crosshair' }}>
           <AxisBottom
             top={HEIGHT}
             scale={scaleFreq}
@@ -156,7 +157,7 @@ export default function LFOPad(props: LFOProps): JSX.Element {
             numTicks={5}
           />
         </g>
-        <g>
+        <g style={{ cursor: 'crosshair' }}>
           <AxisLeft
             left={0}
             scale={scaleDepth}
