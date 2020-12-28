@@ -166,7 +166,7 @@ export default function MonoSynth(): JSX.Element {
       </div>
       <div className={cs.synthControls}>
         <div style={{ width: 300 }}>
-          <header>VCO</header>
+          <header>Oscillator</header>
           <VCO oscillator={synth.oscillator} />
           <HarmonicsController
             subOscEnabled={subOscEnabled}
