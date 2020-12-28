@@ -165,7 +165,7 @@ export default function MonoSynth(): JSX.Element {
         </div>
       </div>
       <div className={cs.synthControls}>
-        <div>
+        <div style={{ width: 300 }}>
           <header>VCO</header>
           <VCO oscillator={synth.oscillator} />
           <HarmonicsController
@@ -182,8 +182,6 @@ export default function MonoSynth(): JSX.Element {
             filter={synth.filter}
           />
         </div>
-      </div>
-      <div className={cs.synthControls}>
         <div>
           <header>LFO</header>
           <LFOPad
