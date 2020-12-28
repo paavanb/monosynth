@@ -16,7 +16,9 @@ function App(): JSX.Element {
     <div className="App">
       <main className="container">
         {!started ? (
-          <button onClick={() => setStarted(true)}>Start Synth</button>
+          <button className="start-btn" onClick={() => setStarted(true)}>
+            Start Synth
+          </button>
         ) : (
           <MonoSynth />
         )}
