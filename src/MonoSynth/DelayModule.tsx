@@ -12,6 +12,7 @@ const scaleDelay = scalePow().exponent(2).domain([0, 1]).range([0, 1])
 const scaleFeedback = scalePow().exponent(2).domain([0, 1]).range([0, 1])
 
 const formatNumber = format('.2f')
+const formatPercent = format('.0%')
 
 interface DelayModuleProps {
   delayNode: Tone.FeedbackDelay
@@ -70,7 +71,7 @@ export default function DelayModule(props: DelayModuleProps): JSX.Element {
         <label>
           <span>
             Feedback
-            <output>{formatNumber(feedback)}</output>
+            <output>{formatPercent(feedback)}</output>
           </span>
           <ScaledRangeInput
             scale={scaleFeedback}
