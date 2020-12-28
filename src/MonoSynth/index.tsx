@@ -14,6 +14,7 @@ import ScaledEnvelopeController from './ScaledEnvelopeController'
 import FFTViz from './FFTViz'
 import WaveformViz from './WaveformViz'
 import HarmonicsController from './HarmonicsController'
+import DelayModule from './DelayModule'
 import cs from './styles.module.css'
 
 // Avoid lookAhead delay https://github.com/Tonejs/Tone.js/issues/306
@@ -37,6 +38,9 @@ export default function MonoSynth(): JSX.Element {
     [synth.context]
   )
   const [subSubOscEnabled, setSubSubOscEnabled] = useState(false)
+
+  const delayNode = useMemo(() => new Tone.FeedbackDelay(), [])
+  const [delayDisabled, setDelayDisabled] = useState(true)
 
   const detuneLFO = useMemo(
     () => new Tone.LFO({ amplitude: 0, max: 1200, min: -1200 }),
@@ -112,7 +116,9 @@ export default function MonoSynth(): JSX.Element {
     // Pass the synth through the FFT so we can record the frequency distribution
     synth.connect(fft)
     synth.connect(waveform)
-    synth.toDestination()
+
+    if (!delayDisabled) synth.chain(delayNode, synth.context.destination)
+    else synth.toDestination()
 
     if (subOscEnabled) {
       subOscillator.connect(synth.filter)
@@ -129,6 +135,8 @@ export default function MonoSynth(): JSX.Element {
     }
   }, [
     synth,
+    delayNode,
+    delayDisabled,
     fft,
     waveform,
     subOscillator,
@@ -157,8 +165,8 @@ export default function MonoSynth(): JSX.Element {
         </div>
       </div>
       <div className={cs.synthControls}>
-        <div>
-          <header>VCO</header>
+        <div style={{ width: 300 }}>
+          <header>Oscillator</header>
           <VCO oscillator={synth.oscillator} />
           <HarmonicsController
             subOscEnabled={subOscEnabled}
@@ -180,6 +188,14 @@ export default function MonoSynth(): JSX.Element {
             lfo={detuneLFO}
             leftAxisTickFormat={(d) => positiveSemitoneFormat(d.valueOf() * 12)}
             leftAxisLabel="Pitch"
+          />
+        </div>
+        <div style={{ width: 300 }}>
+          <header>Delay</header>
+          <DelayModule
+            delayNode={delayNode}
+            disabled={delayDisabled}
+            onDisabledChange={setDelayDisabled}
           />
         </div>
       </div>

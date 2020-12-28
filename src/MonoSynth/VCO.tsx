@@ -193,7 +193,7 @@ export default function VCO(props: VCOProps): JSX.Element {
     <form style={{ textAlign: 'center', width: 300 }}>
       <div className={cs.inlineControl}>
         <label>
-          <span>Oscillator Type</span>
+          <span>Type</span>
           <select
             name="osc-type"
             value={oscType}
@@ -210,7 +210,7 @@ export default function VCO(props: VCOProps): JSX.Element {
       {oscType !== 'pulse' && (
         <div className={cs.inlineControl}>
           <label>
-            <span>Modulation Type</span>
+            <span>Modulation</span>
             <select
               name="osc-type"
               value={modulationType}
