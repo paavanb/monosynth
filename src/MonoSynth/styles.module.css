@@ -11,12 +11,16 @@
   /* Center it */
   transform: translateX(-50%);
   width: 100%;
-  background-color: #a1813a;
+  background-color: var(--color-secondary);
 }
 
 rect.lfoPad {
   fill: #fff;
   rx: 2px;
+}
+
+.lfoPadMarker {
+  stroke: var(--color-primary);
 }
 
 .monosynth {
@@ -73,13 +77,16 @@ rect.lfoPad {
   margin-top: 4px;
 }
 
+/* Cross-browser custom slider colors, created using http://danielstern.ca/range.css/ */
+/* End */
+
 .toneViz rect.window {
   fill: #fff;
   rx: 2px;
 }
 
 .toneViz path {
-  stroke: #0088ff;
+  stroke: var(--color-primary);
   stroke-width: 2px;
 }
 
@@ -98,6 +105,10 @@ rect.lfoPad {
 
 .ribbonKeyboard {
   cursor: crosshair;
+}
+
+.ribbonKeyboard .activeMarker {
+  stroke: var(--color-primary);
 }
 
 .keyboardLabel {

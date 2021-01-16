@@ -217,7 +217,7 @@ export default function RibbonKeyboard(
               x2={activeNoteX}
               y2={HEIGHT}
               strokeWidth={3}
-              stroke="#0088ff"
+              className={cs.activeMarker}
             />
           )}
         </Group>

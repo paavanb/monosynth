@@ -131,8 +131,9 @@ export default function LFOPad(props: LFOProps): JSX.Element {
           ref={padRef}
           width={WIDTH}
           height={HEIGHT}
+          style={{ cursor: 'crosshair' }}
         />
-        <g>
+        <g style={{ cursor: 'crosshair' }}>
           <AxisBottom
             top={HEIGHT}
             scale={scaleFreq}
@@ -156,7 +157,7 @@ export default function LFOPad(props: LFOProps): JSX.Element {
             numTicks={5}
           />
         </g>
-        <g>
+        <g style={{ cursor: 'crosshair' }}>
           <AxisLeft
             left={0}
             scale={scaleDepth}
@@ -186,11 +187,11 @@ export default function LFOPad(props: LFOProps): JSX.Element {
         <circle
           // Avoid accidentally intercepting mouse events
           style={{ pointerEvents: 'none' }}
+          className={cs.lfoPadMarker}
           cx={markerCoords.x}
           cy={markerCoords.y}
           r={5}
-          stroke="#920000"
-          strokeWidth={2}
+          strokeWidth={4}
           fill="none"
         />
       </Group>

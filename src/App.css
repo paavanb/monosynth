@@ -1,9 +1,15 @@
+:root {
+  --color-base: #3f3f3f;
+  --color-primary: #2d77f6;
+  --color-secondary: #c25c10;
+}
+
 .App {
   text-align: center;
 }
 
 body {
-  background-color: #282c34;
+  background-color: var(--color-base);
 }
 
 main.container {
@@ -15,11 +21,9 @@ main.container {
   color: white;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+button.start-btn {
+  padding: 1rem;
+  font-size: 1.5rem;
+  border-radius: 5px;
+  cursor: pointer;
 }
