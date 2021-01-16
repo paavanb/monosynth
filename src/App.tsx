@@ -13,6 +13,7 @@ function App(): JSX.Element {
       <main className="container">
         {!started ? (
           <div>
+            <h1>Digital Monosynth</h1>
             <button
               className="start-btn"
               onClick={() => {
@@ -20,7 +21,7 @@ function App(): JSX.Element {
                 Tone.start()
               }}
             >
-              Start Synth
+              Start
             </button>
             <h5>Warning: only Chrome is supported</h5>
           </div>
