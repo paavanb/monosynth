@@ -11,7 +11,7 @@
   /* Center it */
   transform: translateX(-50%);
   width: 100%;
-  background-color: var(--color-primary);
+  background-color: var(--color-secondary);
 }
 
 rect.lfoPad {
@@ -20,7 +20,7 @@ rect.lfoPad {
 }
 
 .lfoPadMarker {
-  stroke: var(--color-secondary);
+  stroke: var(--color-primary);
 }
 
 .monosynth {
@@ -108,7 +108,7 @@ rect.lfoPad {
 }
 
 .ribbonKeyboard .activeMarker {
-  stroke: var(--color-secondary);
+  stroke: var(--color-primary);
 }
 
 .keyboardLabel {
