@@ -26,9 +26,23 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "deploy": "deploy-to-git",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "lint": "eslint"
+  },
+  "config": {
+    "deployToGit": {
+      "repository": "git@github.com:paavanb/monosynth.git",
+      "branch": "gh-pages",
+      "folder": "public",
+      "script": "npm version patch; npm run build",
+      "commit": "Updates GH site for monosynth version $npm_package_version",
+      "user": {
+          "email": "paavanb@gmail.com",
+          "name": "Paavan Bhavsar"
+      }
+    }
   },
   "eslintConfig": {
     "extends": "react-app"
