@@ -7,7 +7,67 @@ that allows you to play with a digital monosynth, powered by [Tone.js](https://t
 Due to nuances in the [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API),
 only the Chrome browser is supported at the moment.
 
-## Available Scripts
+## Design Experiments
+
+There are a couple places where I've opted for designs that are deliberately different from other web synths.
+
+### Logarithmic Sliders
+
+One of the most frustrating patterns I've seen is the usage of linearly-scaled skeumorphic knobs.
+Knobs are difficult to interact with on a computer, making simple sliders a better option, and the linear
+scale is at odds with the fact that we experience sound logarithmically: the difference between 100 Hz and 200 Hz is
+an entire octave, but the difference betwen 1,000 Hz and 1,100 Hz is a bit more than 1 semitone. Using a linear
+scale for Hz means that it's very difficult to get semitone-level precision at lower values, since a small adjustment
+results in a massive change in tone.
+
+This is why the Monosynth opts for logarithmically scaled sliders for almost all settings, allowing you to be precise
+at both low and high values.
+
+### Two-dimensional LFO
+
+The web synths that I've seen let you adjust the LFO (Low-Frequency Oscillator) using two sliders, controlling the
+frequency and the pitch. It's hard to visualize how these two numbers affect the sound, so I decided to combine
+the two sliders into a single 2D "pad". I believe it's a more effective visualization, and has the huge advantage of
+letting you adjust both values at the same time.
+
+### Envelopes
+
+The Gen X-1 and other synths split up an envelope's settings into four values: attack, decay, sustain, and release.
+I found these difficult to play with, since changing attack or decay would change the overall onset time of the tone.
+If you wanted to keep the onset time relatively constant, you have to carefully adjust attack and decay in opposite
+directions (e.g., increasing attack would require a decrease in decay).
+
+For the Monosynth, I decided to break down an envelope's settings differently:
+
+* Onset - The time it takes for the tone to settle into the "sustain" value
+* Attack-Decay Split - The ratio between attack and decay within the onset time. For example, a high value means
+long attack, short decay.
+* Sustain - The sustain value as usual
+* Release - The release time as usual
+
+
+I've found that this breakdown makes it a lot more fun to play with different kinds of sounds. I can set the onset time
+of the tone and then fiddle with the attack-decay split to get wildly different sounds, but without changing the onset
+quality. The graph above each envelope's settings is important since it gives you a quick visual of how your play is
+affecting the shape of the tone. Try changing the curve types to see how they change the envelope!
+
+### Keyboard
+
+It's difficult to map a musical keyboard onto a computer's keyboard, but the web synths I've played with tend to have
+mappings that make it incredibly difficult to play. For the Monosynth, I've opted for a system that lets your hands
+rest relatively comfortably while playing on a QWERTY keyboard.
+
+The biggest decision is to make Middle C (C4) played with the spacebar. The white keys are then played with the top
+row of letters and the black keys are the numbers. I've found this to feel pretty natural while playing.
+
+Since this only allows you to play down to (but not including) C3, and likewise up to C5, I've added keys for modifying
+the note to play octaves higher or lower. `v`, `c`, `x`, and `z` shift down an octave, while `b`, `n`, `m`, `,`, and `.`
+shift up an octave. Pressing multiple at a time let you stack octaves, which isn't the best experience and doesn't
+work on all keyboards. In the future, the Monosynth will likely change to let these modifier keys shift `n` octaves
+by themselves (e.g., making `x` shift down three octaves).
+
+
+## Development
 
 In the project directory, you can run:
 
