@@ -39,5 +39,18 @@
           "endOfLine": "auto"
         }
       ]
-    }
+    },
+    "overrides": [
+      {
+        "files": ["**/*.ts?(x)"],
+        "rules": {
+          "@typescript-eslint/ban-ts-comment": [
+            "error",
+            {
+              "ts-ignore": "allow-with-description"
+            }
+          ]
+        }
+      }
+    ]
 }
