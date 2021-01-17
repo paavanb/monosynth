@@ -36,7 +36,7 @@
       "repository": "git@github.com:paavanb/monosynth.git",
       "branch": "gh-pages",
       "folder": "public",
-      "script": "npm version patch; npm run build",
+      "script": "npm run build",
       "commit": "Updates GH site for monosynth version $npm_package_version",
       "user": {
           "email": "paavanb@gmail.com",
