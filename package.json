@@ -29,7 +29,7 @@
     "deploy": "deploy-to-git",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "lint": "eslint"
+    "lint": "eslint . --ext ts,tsx,js"
   },
   "config": {
     "deployToGit": {
@@ -43,9 +43,6 @@
           "name": "Paavan Bhavsar"
       }
     }
-  },
-  "eslintConfig": {
-    "extends": "react-app"
   },
   "browserslist": {
     "production": [
