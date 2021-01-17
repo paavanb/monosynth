@@ -174,6 +174,7 @@ interface VCOProps {
 
 export default function VCO(props: VCOProps): JSX.Element {
   const { oscillator } = props
+  // @ts-ignore Tonejs doesn't export the OmniOscillatorType for us to use
   const [oscType, setOscType] = useState<OscillatorType>(oscillator.type)
   const [modulationType, setModulationType] = useState<string>('')
 
@@ -182,9 +183,7 @@ export default function VCO(props: VCOProps): JSX.Element {
     if (oscType === 'pulse') {
       oscillator.type = 'pulse'
     } else {
-      // Tonejs doesn't export the OmniOscillatorType for us to coerce
-      // eslint-disable-next-line
-      // @ts-ignore
+      // @ts-ignore Tonejs doesn't export the OmniOscillatorType for us to coerce
       oscillator.type = modulationType + oscType
     }
   }, [oscillator, oscType, modulationType])
