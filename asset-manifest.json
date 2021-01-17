@@ -1,0 +1,20 @@
+{
+  "files": {
+    "main.css": "/monosynth/static/css/main.0bdf18b7.chunk.css",
+    "main.js": "/monosynth/static/js/main.8c14503c.chunk.js",
+    "main.js.map": "/monosynth/static/js/main.8c14503c.chunk.js.map",
+    "runtime-main.js": "/monosynth/static/js/runtime-main.0fae54d9.js",
+    "runtime-main.js.map": "/monosynth/static/js/runtime-main.0fae54d9.js.map",
+    "static/js/2.1090ed05.chunk.js": "/monosynth/static/js/2.1090ed05.chunk.js",
+    "static/js/2.1090ed05.chunk.js.map": "/monosynth/static/js/2.1090ed05.chunk.js.map",
+    "index.html": "/monosynth/index.html",
+    "static/css/main.0bdf18b7.chunk.css.map": "/monosynth/static/css/main.0bdf18b7.chunk.css.map",
+    "static/js/2.1090ed05.chunk.js.LICENSE.txt": "/monosynth/static/js/2.1090ed05.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.0fae54d9.js",
+    "static/js/2.1090ed05.chunk.js",
+    "static/css/main.0bdf18b7.chunk.css",
+    "static/js/main.8c14503c.chunk.js"
+  ]
+}
