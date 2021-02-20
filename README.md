@@ -7,6 +7,11 @@ that allows you to play with a digital monosynth, powered by [Tone.js](https://t
 Due to nuances in the [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API),
 only the Chrome browser is supported at the moment.
 
+## Keyboard
+The synth can be played by clicking/dragging on the ribbon keyboard at the bottom of the screen, or by using your own
+computer keyboard (QWERTY). Spacebar is middle C, the top row of letters are the white keys, and (most) numbers
+are the black keys. Use the bottom row of letters to shift up and down octaves. Play around!
+
 ## Design Experiments
 
 There are a couple places where I've opted for designs that are deliberately different from other web synths.
